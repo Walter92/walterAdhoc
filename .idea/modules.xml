@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/WalterAdhoc.iml" filepath="$PROJECT_DIR$/WalterAdhoc.iml" />
+      <module fileurl="file://$USER_HOME$/didichuxing/configcenter/configcenter.iml" filepath="$USER_HOME$/didichuxing/configcenter/configcenter.iml" />
+      <module fileurl="file://$USER_HOME$/didichuxing/configcenter/configcenter-client/configcenter-client.iml" filepath="$USER_HOME$/didichuxing/configcenter/configcenter-client/configcenter-client.iml" />
+      <module fileurl="file://$USER_HOME$/didichuxing/configcenter/configcenter-common/configcenter-common.iml" filepath="$USER_HOME$/didichuxing/configcenter/configcenter-common/configcenter-common.iml" />
+      <module fileurl="file://$USER_HOME$/didichuxing/configcenter/configcenter-server/configcenter-server.iml" filepath="$USER_HOME$/didichuxing/configcenter/configcenter-server/configcenter-server.iml" />
+    </modules>
+  </component>
+</project>

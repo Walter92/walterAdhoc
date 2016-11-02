@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.xiaoju.phoenix:phoenix-util:phoenix-util-2016072701">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/xiaoju/phoenix/phoenix-util/phoenix-util-2016072701/phoenix-util-phoenix-util-2016072701.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/xiaoju/phoenix/phoenix-util/phoenix-util-2016072701/phoenix-util-phoenix-util-2016072701-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/xiaoju/phoenix/phoenix-util/phoenix-util-2016072701/phoenix-util-phoenix-util-2016072701-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
