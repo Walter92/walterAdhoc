@@ -1,6 +1,8 @@
 package cn.edu.uestc.Adhoc.entity.factory;
 
 import cn.edu.uestc.Adhoc.entity.adhocNode.AdhocNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.*;
@@ -12,6 +14,7 @@ import java.util.*;
  * @author walter
  */
 public class AdhocNodeFactory {
+    private static final Logger logger = LoggerFactory.getLogger(AdhocNodeFactory.class);
     //禁止创建工厂对象
     private AdhocNodeFactory() {
     }
@@ -20,18 +23,21 @@ public class AdhocNodeFactory {
 
     //载入端口映射的配置文件
     static {
-        InputStream in = AdhocNodeFactory.class.getResourceAsStream("portMapping.properties");
+        InputStream in = AdhocNodeFactory.class.getClassLoader().getResourceAsStream("portMapping.properties");
         props = new Properties();
         try {
             if(in!=null) {
+                logger.debug("载入端口映射文件...");
                 //载入配置文件
                 props.load(in);
             }else{
-                System.out.println("没有找到配置文件!");
+                logger.warn("没有找到端口映射配置文件!");
+                throw new NullPointerException();
             }
         } catch (IOException e) {
-            System.out.println("载入配置文件出错！堆栈信息如下:");
+            logger.warn("载入配置文件出错！堆栈信息如下:");
             e.printStackTrace();
+            throw new RuntimeException();
         }
     }
 
@@ -43,6 +49,13 @@ public class AdhocNodeFactory {
 //        return null;
     }
 
+    //生产一个节点实例
+    public static AdhocNode getInstance(String portName,int ip) {
+        //获取配置文件中对应key，去掉key的多余空格和转化为小写
+        portName = props.getProperty(portName.trim().toLowerCase());
+        return new AdhocNode(portName,ip);
+//        return null;
+    }
 
     public static boolean closeAdhocNode(AdhocNode adhocNode) {
         return true;

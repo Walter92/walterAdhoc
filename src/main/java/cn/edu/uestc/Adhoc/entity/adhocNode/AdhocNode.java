@@ -98,10 +98,27 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         adhocTransfer = new Serial(portName);
         //节点对串口进行监听
         adhocTransfer.addReceiveListener(this);
-        logger.debug("节点{}监听串口状态...", this.ip);
+        logger.debug("本节点监听串口状态...");
         adhocTransfer.receive();
-        logger.debug("节点{}接收线程开启，等待数据到来...", this.ip);
-        logger.debug("========================");
+        logger.debug("本节点接收线程开启，等待数据到来...");
+        logger.debug("本节点初始化完成！");
+    }
+
+    // 通过串口名字构造一个结点
+    public AdhocNode(String portName,int ip) {
+        // 设置通信的串口
+        this.ip = ip;
+        this.portName = portName;
+        this.seqNum = 1;
+        adhocTransfer = new Serial(portName);
+
+        //节点对串口进行监听
+        adhocTransfer.addReceiveListener(this);
+        logger.debug("节点{}监听串口状态...",this.ip);
+        adhocTransfer.receive();
+
+        logger.debug("节点{}接收线程开启，等待数据到来...",this.ip);
+        logger.debug("节点{}初始化完成！",this.ip);
     }
 
     //当串口中数据被更新后执行的方法
@@ -338,7 +355,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
 
         int destinationIP = messageData.getDestinationIP();
         if (destinationIP == ip) {
-            logger.debug("节点{}收到来自{}的数据，" + "内容为：", this.ip, messageData.getSrcIP(), new String(messageData.getContent()));
+            logger.debug("节点{}收到来自{}的数据，" + "内容为：{}", this.ip, messageData.getSrcIP(), new String(messageData.getContent()));
             return;
         }
 

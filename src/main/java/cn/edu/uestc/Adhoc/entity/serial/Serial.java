@@ -9,6 +9,8 @@ import gnu.io.CommPortIdentifier;
 import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
 import gnu.io.UnsupportedCommOperationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,9 +28,11 @@ import java.util.concurrent.Executors;
  * 通过串口实现传输层接口，为adhoc节点提供传输
  */
 public class Serial implements AdhocTransfer{
+    private static final Logger logger = LoggerFactory.getLogger(Serial.class);
     private Vector<EventListener> repository = new Vector<EventListener>();
     private SerialPortListener serialPortListener;
-
+    private static final String ADHOC = "Adhoc";
+    private static final int BAUD_RATE = 9600;
     //串口的名字
     private String portName;
 
@@ -124,8 +128,8 @@ public class Serial implements AdhocTransfer{
                 if (portName.equals(portId.getName())) {
                     try {
                         // 打开端口，超时时间为2000
-                        serialPort = (SerialPort) portId.open("Adhoc", 2000);
-                        System.out.println(portName + " 串口开启成功.");
+                        serialPort = (SerialPort) portId.open(ADHOC, 2000);
+                        logger.debug("{}串口开启成功.", portName);
                         break;
                     } catch (PortInUseException e) {
                         e.printStackTrace();
@@ -139,7 +143,7 @@ public class Serial implements AdhocTransfer{
             // 初始化输入输出流，为创建收发线程准备
             is = serialPort.getInputStream();
             os = serialPort.getOutputStream();
-            System.out.println("初始化端口IO流成功！");
+            logger.debug("初始化端口IO流成功！");
         } catch (IOException e) {
             e.printStackTrace();
             throw e;
@@ -147,14 +151,14 @@ public class Serial implements AdhocTransfer{
 
         try {
             // 设置初始化参数
-            System.out.println("节点初始化参数设置（波特率，数据位，停止位，校验位）...");
-            serialPort.setSerialPortParams(9600, // 波特率
+            logger.debug("节点初始化参数设置（波特率，数据位，停止位，校验位）...");
+            serialPort.setSerialPortParams(BAUD_RATE, // 波特率
                     SerialPort.DATABITS_8, // 数据位
                     SerialPort.STOPBITS_1, // 停止位
                     SerialPort.PARITY_NONE);// 校验位
-            System.out.println("节点初始化参数设置完毕。");
+            logger.debug("节点初始化参数设置完毕。");
         } catch (UnsupportedCommOperationException e) {
-            System.out.println("端口初始化失败！");
+            logger.warn("端口初始化失败！");
             throw e;
         }
     }

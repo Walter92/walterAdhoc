@@ -6,7 +6,6 @@ import cn.edu.uestc.Adhoc.entity.message.MessageRREQ;
 import cn.edu.uestc.Adhoc.entity.systemInfo.SystemInfo;
 
 import java.io.IOException;
-
 public class AdhocTest {
 
     public static void main(String[] args) throws IOException {
