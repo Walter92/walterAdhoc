@@ -102,8 +102,8 @@ public class SerialReadThread implements Runnable, SerialPortEventListener {
 //                                System.out.println("帧尾校验成功!");
 //                                System.out.println("完整数据:" + new String(buff) + "::" + lengthOfBuff);
 
-                            serial.setMessage(buff);
-                               buff = new byte[0];
+                                serial.setMessage(buff);
+                                buff = new byte[0];
                             }
                         }
 

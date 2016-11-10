@@ -9,10 +9,10 @@ import cn.edu.uestc.Adhoc.utils.MessageUtils;
  */
 public class MessageHello extends Message {
 
-    public MessageHello(int srcIp, int destinationIp){
-        this.type= RouteProtocol.HELLO;
-        this.srcIP=srcIp;
-        this.destinationIP =destinationIp;
+    public MessageHello(int srcIp, int destinationIp) {
+        this.type = RouteProtocol.HELLO;
+        this.srcIP = srcIp;
+        this.destinationIP = destinationIp;
     }
 
     //编码，将hello报文
@@ -34,7 +34,7 @@ public class MessageHello extends Message {
     }
 
     //将字节恢复为HelloMessage
-    public static MessageHello recoverMsg(byte[] bytes){
+    public static MessageHello recoverMsg(byte[] bytes) {
         ///恢复byte数组中的数据
         int srcIP = MessageUtils.BytesToInt(new byte[]{bytes[3], bytes[4]});
         int destinationIP = MessageUtils.BytesToInt(new byte[]{bytes[5], bytes[6]});

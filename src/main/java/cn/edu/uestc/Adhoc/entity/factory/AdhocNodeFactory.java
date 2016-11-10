@@ -15,6 +15,7 @@ import java.util.*;
  */
 public class AdhocNodeFactory {
     private static final Logger logger = LoggerFactory.getLogger(AdhocNodeFactory.class);
+
     //禁止创建工厂对象
     private AdhocNodeFactory() {
     }
@@ -26,11 +27,11 @@ public class AdhocNodeFactory {
         InputStream in = AdhocNodeFactory.class.getClassLoader().getResourceAsStream("portMapping.properties");
         props = new Properties();
         try {
-            if(in!=null) {
+            if (in != null) {
                 logger.debug("load config file of port mapping...");
                 //载入配置文件
                 props.load(in);
-            }else{
+            } else {
                 logger.warn("not exist config file!");
                 throw new NullPointerException();
             }
@@ -50,10 +51,10 @@ public class AdhocNodeFactory {
 //    }
 
     //生产一个节点实例
-    public static AdhocNode getInstance(String portName,int ip) {
+    public static AdhocNode getInstance(String portName, int ip) {
         //获取配置文件中对应key，去掉key的多余空格和转化为小写
         portName = props.getProperty(portName.trim().toLowerCase());
-        return new AdhocNode(portName,ip);
+        return new AdhocNode(portName, ip);
 //        return null;
     }
 

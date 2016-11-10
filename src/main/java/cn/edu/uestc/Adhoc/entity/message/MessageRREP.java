@@ -75,7 +75,7 @@ public class MessageRREP extends Message {
                 destinationByte[0], destinationByte[1],//目标节点7,8
                 (byte) seqNum,//序列号,9
                 (byte) hop,//跳数,10
-                sysByte[0], sysByte[1],sysByte[2],//系统信息,11,12,13
+                sysByte[0], sysByte[1], sysByte[2],//系统信息,11,12,13
                 RouteProtocol.frameEnd[0], RouteProtocol.frameEnd[1]//帧尾,14,15
         };
         return messageByte;
@@ -92,7 +92,7 @@ public class MessageRREP extends Message {
         byte seqNum = bytes[9];
         byte hop = bytes[10];
 
-        SystemInfo sysInfo = SystemInfo.recoverSysInfo(new byte[]{bytes[11], bytes[12],bytes[13]});
+        SystemInfo sysInfo = SystemInfo.recoverSysInfo(new byte[]{bytes[11], bytes[12], bytes[13]});
 
         MessageRREP message = new MessageRREP(routeIP, hop, seqNum, sysInfo);
         message.setSrcIP(srcIP);

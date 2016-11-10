@@ -27,7 +27,7 @@ import java.util.concurrent.Executors;
  * 串口的事件监听机制，串口为事件源，一旦串口中的message发生改变(事件)，就会出发自组网节点对象调用dataParsing()
  * 通过串口实现传输层接口，为adhoc节点提供传输
  */
-public class Serial implements AdhocTransfer{
+public class Serial implements AdhocTransfer {
     private static final Logger logger = LoggerFactory.getLogger(Serial.class);
     private Vector<EventListener> repository = new Vector<EventListener>();
     private SerialPortListener serialPortListener;
@@ -42,11 +42,11 @@ public class Serial implements AdhocTransfer{
     //串口的线程池
     private ExecutorService executorService;
 
-    public  SerialPort serialPort;
-    public  CommPortIdentifier portId;
+    public SerialPort serialPort;
+    public CommPortIdentifier portId;
     @SuppressWarnings("rawtypes")
     //枚举到的本机的串口和并口列表
-    public  Enumeration portList;
+    public Enumeration portList;
 
     //串口输入输出流
     private InputStream is;
@@ -162,6 +162,7 @@ public class Serial implements AdhocTransfer{
             throw e;
         }
     }
+
     @Override
     //串口的写方法
     public void send(Message message) throws IOException {

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Adhocprocessor implements IAdhocNode {
     private static Logger logger = LoggerFactory.getLogger(Adhocprocessor.class);
+
     @Override
     public void sendRREQ(int destIP) {
 

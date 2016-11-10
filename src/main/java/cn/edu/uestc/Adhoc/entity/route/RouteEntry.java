@@ -18,7 +18,7 @@ import cn.edu.uestc.Adhoc.entity.systemInfo.SystemInfo;
  * 9. 其他状态和路由标志：如路由有效、无效、可修复、正在修复。
  */
 public class RouteEntry {
-    public static final  long MAX_LIFETIME=1000*60;
+    public static final long MAX_LIFETIME = 1000 * 60;
 
     //目标节点的IP地址
     private int destIP;
@@ -35,19 +35,19 @@ public class RouteEntry {
 //    private HashSet<Integer> PrecursorIPs = new HashSet<Integer>();
 
     //在这个时间内，该表项有效
-    private volatile long  lifeTime;
+    private volatile long lifeTime;
 
     //目标节点的系统信息
     SystemInfo systemInfo;
 
-    public RouteEntry(int destIP, int nextHopIP, int seqNum, StateFlags state, int hopCount, long lifeTime,SystemInfo systemInfo) {
+    public RouteEntry(int destIP, int nextHopIP, int seqNum, StateFlags state, int hopCount, long lifeTime, SystemInfo systemInfo) {
         this.destIP = destIP;
         this.seqNum = seqNum;
         this.state = state;
         this.hopCount = hopCount;
         this.nextHopIP = nextHopIP;
         this.lifeTime = lifeTime;
-        this.systemInfo=systemInfo;
+        this.systemInfo = systemInfo;
 
         // 方案一：在构造后就启动一个单独的线程来维护生存时间，
         // 直接缺点就是每一个表项都会开启一个线程，如果表项很多的话会创建很多线程，占用大量系统资源(也许可以这么干，也占不了多少资源)
@@ -131,14 +131,14 @@ public class RouteEntry {
     }
 
     //根据生存时间，表项失效设置
-    public void setInvalid(){
-        while(true){
+    public void setInvalid() {
+        while (true) {
             try {
 
                 Thread.sleep(1000);
-                this.lifeTime=this.lifeTime-1000;
-                if(lifeTime<=0){
-                    this.state=StateFlags.INVALID;
+                this.lifeTime = this.lifeTime - 1000;
+                if (lifeTime <= 0) {
+                    this.state = StateFlags.INVALID;
                     break;
                 }
 

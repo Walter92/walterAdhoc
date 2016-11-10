@@ -20,7 +20,7 @@ public class MessageData extends Message {
     public MessageData() {
     }
 
-    public MessageData(int destinationIP,  byte[] content) {
+    public MessageData(int destinationIP, byte[] content) {
         this.destinationIP = destinationIP;
         this.dataLen = content.length;
         this.content = content;
@@ -101,7 +101,7 @@ public class MessageData extends Message {
         byte dataLength = bytes[9];
         byte[] information = Arrays.copyOfRange(bytes, 10, bytes.length - 2);
 
-        MessageData message = new MessageData(nextIP,  information);
+        MessageData message = new MessageData(nextIP, information);
         message.setSrcIP(srcIP);
         message.setDataLen(dataLength);
         message.setDestinationIP(destinationIP);

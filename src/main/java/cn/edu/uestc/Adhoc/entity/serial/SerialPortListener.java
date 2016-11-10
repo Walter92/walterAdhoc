@@ -8,7 +8,6 @@ import java.util.EventListener;
  */
 public interface SerialPortListener extends EventListener {
     /**
-     *
      * @param serialPortEvent 串口中message被更新的事件
      */
     public void doSerialPortEvent(SerialPortEvent serialPortEvent);

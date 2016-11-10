@@ -32,7 +32,7 @@ public interface IAdhocNode {
     void dataParsing(byte[] bytes);
 
     //发送数据消息
-    void sendMessage(String context,int destIP);
+    void sendMessage(String context, int destIP);
 
     //接收数据消息
     void receiveDATA(MessageData messageData);

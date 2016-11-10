@@ -8,10 +8,10 @@ import java.util.Arrays;
  * Created by walter on 15-12-3.
  */
 public class SystemInfo {
-    private static final String UNDER_LINE="_";
+    private static final String UNDER_LINE = "_";
     private int processorCount;
     private int memorySize;
-    private  String osName;
+    private String osName;
     private String osArch;
 
     public SystemInfo() {
@@ -52,16 +52,16 @@ public class SystemInfo {
         sysInfo[0] = (byte) processorCount;
         sysInfo[1] = MessageUtils.IntToBytes(memorySize)[0];
         sysInfo[2] = MessageUtils.IntToBytes(memorySize)[1];
-        byte[] osNameAndArch = (osName+UNDER_LINE+osArch).getBytes();
-        byte[] sysInfos = new byte[sysInfo.length+osNameAndArch.length];
-        System.arraycopy(sysInfo,0,sysInfos,0,sysInfo.length);
-        System.arraycopy(osNameAndArch,0,sysInfos,sysInfo.length,osNameAndArch.length);
+        byte[] osNameAndArch = (osName + UNDER_LINE + osArch).getBytes();
+        byte[] sysInfos = new byte[sysInfo.length + osNameAndArch.length];
+        System.arraycopy(sysInfo, 0, sysInfos, 0, sysInfo.length);
+        System.arraycopy(osNameAndArch, 0, sysInfos, sysInfo.length, osNameAndArch.length);
         return sysInfos;
     }
 
     public static SystemInfo recoverSysInfo(byte[] bytes) {
         SystemInfo systemInfo = new SystemInfo(bytes[0], MessageUtils.BytesToInt(new byte[]{bytes[1], bytes[2]}));
-        String osNameAndArch = new String(bytes,3,bytes.length-3);
+        String osNameAndArch = new String(bytes, 3, bytes.length - 3);
         systemInfo.setOsName(osNameAndArch.split(UNDER_LINE)[0]);
         systemInfo.setOsArch(osNameAndArch.split(UNDER_LINE)[1]);
 
@@ -88,13 +88,13 @@ public class SystemInfo {
     public String toString() {
         return "the count of processor【"
                 + processorCount +
-                "】,memory【" + memorySize+
-                "】,os name【"+osName+
-                "】,os arch【"+osArch+"】";
+                "】,memory【" + memorySize +
+                "】,os name【" + osName +
+                "】,os arch【" + osArch + "】";
     }
 
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         SystemInfo systemInfo = new SystemInfo();
 //        System.out.println(systemInfo);
         byte[] sysInfoBytes = systemInfo.getBytes();

@@ -24,23 +24,23 @@ public class MessageUtils {
         return number;
     }
 
-    public static byte[] mergeArray(byte[]... args){
+    public static byte[] mergeArray(byte[]... args) {
         int len = args.length;
-        if(len<2){
+        if (len < 2) {
             return args[0];
         }
         int newlen = 0;
-        for(int i=0;i<len;i++){
-            newlen+=args[i].length;
+        for (int i = 0; i < len; i++) {
+            newlen += args[i].length;
         }
         byte[] newArray = new byte[newlen];
-        for(int i=0;i<len;i++){
-            int start=0;
-            int j=0;
-            for(;j<args[i].length;j++){
-                newArray[j+start]=args[i][j];
+        for (int i = 0; i < len; i++) {
+            int start = 0;
+            int j = 0;
+            for (; j < args[i].length; j++) {
+                newArray[j + start] = args[i][j];
             }
-            start=j;
+            start = j;
         }
         return newArray;
     }

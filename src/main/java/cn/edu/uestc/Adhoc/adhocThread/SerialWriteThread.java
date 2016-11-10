@@ -26,20 +26,20 @@ public class SerialWriteThread implements Runnable {
     public void run() {
 //        System.out.println("开始发送数据...");
 //        while (true) {
-            try {
-                byte[] bytes=message.getBytes();
-                logger.debug("sent datagram 【{}】",Arrays.toString(bytes));
-                bos.write(bytes);
+        try {
+            byte[] bytes = message.getBytes();
+            logger.debug("sent datagram 【{}】", Arrays.toString(bytes));
+            bos.write(bytes);
 //                bos.write("hello world...".getBytes());
-                bos.flush();
-                Thread.sleep(1000);
-            } catch (IOException e) {
-                //System.out.println("发送异常...");
-                logger.warn("sent exception,failed!");
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            bos.flush();
+            Thread.sleep(1000);
+        } catch (IOException e) {
+            //System.out.println("发送异常...");
+            logger.warn("sent exception,failed!");
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 //        }
     }
 }

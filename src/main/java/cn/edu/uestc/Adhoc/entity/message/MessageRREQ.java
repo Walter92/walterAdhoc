@@ -83,7 +83,7 @@ public class MessageRREQ extends Message {
 
                 (byte) seqNum,//序列号,9
                 (byte) hop,//跳数,10
-                sysByte[0], sysByte[1],sysByte[2],//系统信息,11,12,13
+                sysByte[0], sysByte[1], sysByte[2],//系统信息,11,12,13
 
                 RouteProtocol.frameEnd[0],
                 RouteProtocol.frameEnd[1]//帧尾,14,15
@@ -99,7 +99,7 @@ public class MessageRREQ extends Message {
         int destinationIP = MessageUtils.BytesToInt(new byte[]{bytes[7], bytes[8]});
         byte seqNum = bytes[9];
         byte hop = bytes[10];
-        SystemInfo sysInfo = SystemInfo.recoverSysInfo(new byte[]{bytes[11], bytes[12],bytes[13]});
+        SystemInfo sysInfo = SystemInfo.recoverSysInfo(new byte[]{bytes[11], bytes[12], bytes[13]});
 
         MessageRREQ message = new MessageRREQ(routeIP, hop, seqNum, sysInfo);
         message.setSrcIP(srcIP);

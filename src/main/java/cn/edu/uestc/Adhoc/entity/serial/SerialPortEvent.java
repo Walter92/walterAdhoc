@@ -13,13 +13,13 @@ public class SerialPortEvent extends EventObject {
      * @throws IllegalArgumentException if source is null.
      */
     private Object obj;
-    public SerialPortEvent(Serial source)   {
+
+    public SerialPortEvent(Serial source) {
         super(source);
-        this.obj=source;
+        this.obj = source;
     }
 
-    public Object getSource()
-    {
+    public Object getSource() {
         return obj;
     }
 }
