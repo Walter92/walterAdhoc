@@ -38,7 +38,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     private AdhocTransfer adhocTransfer;
 
     // 节点IP地址
-    private int ip;
+    private final int ip;
 
     //和开启的串口端口名字
     private String portName;
@@ -69,9 +69,6 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     }
 
     //设置节点ip
-    public void setIp(int ip) {
-        this.ip = ip;
-    }
 
     public AdhocTransfer getAdhocTransfer() {
         return this.adhocTransfer;
@@ -90,19 +87,6 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         this.precursorIPs = precursorIPs;
     }
 
-    // 通过串口名字构造一个结点
-    public AdhocNode(String portName) {
-        // 设置通信的串口
-        this.portName = portName;
-        this.seqNum = 1;
-        adhocTransfer = new Serial(portName);
-        //节点对串口进行监听
-        adhocTransfer.addReceiveListener(this);
-        logger.debug("本节点监听串口状态...");
-        adhocTransfer.receive();
-        logger.debug("本节点接收线程开启，等待数据到来...");
-        logger.debug("本节点初始化完成！");
-    }
 
     // 通过串口名字构造一个结点
     public AdhocNode(String portName,int ip) {
@@ -114,11 +98,11 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
 
         //节点对串口进行监听
         adhocTransfer.addReceiveListener(this);
-        logger.debug("节点{}监听串口状态...",this.ip);
+        logger.debug("the ip 【{}】 of node listen status about serial...",this.ip);
         adhocTransfer.receive();
 
-        logger.debug("节点{}接收线程开启，等待数据到来...",this.ip);
-        logger.debug("节点{}初始化完成！",this.ip);
+        logger.debug("the ip 【{}】of node start reader thread，waiting for data...",this.ip);
+        logger.debug("the ip 【{}】of node init done！",this.ip);
     }
 
     //当串口中数据被更新后执行的方法
@@ -131,7 +115,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     //发起对某节点的路由请求
     @Override
     public void sendRREQ(int destinationIP) {
-        logger.info("节点{}对节点{}发起路由请求...",this.ip,destinationIP);
+        logger.info("【{}】sending RREQ to 【{}】...",this.ip,destinationIP);
         //本节点对目标节点发出一次RREQ，发出后把seqNum参数加一，以便下次在发出RREQ时为最新请求
         MessageRREQ messageRREQ = new MessageRREQ();
         messageRREQ.setType(RouteProtocol.RREQ);
@@ -144,9 +128,9 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         messageRREQ.setHop((byte) 0);
         try {
             adhocTransfer.send(messageRREQ);
-            logger.debug("节点{}对节点{}发起路由请求成功，正在等待路由回复...", this.ip, destinationIP);
+            logger.debug("【{}】sent RREQ to 【{}】successfully and waiting for RREP...", this.ip, destinationIP);
         } catch (IOException e) {
-            logger.error("节点{}对节点{}发起路由请求失败!", this.ip, destinationIP);
+            logger.error("【{}】sent RREQ to 【{}】failed!", this.ip, destinationIP);
         }
     }
 
@@ -160,13 +144,13 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     //在数据类型方法解析后调用，开始解析数据中内容，判断是否为发送给自己的RREQ
     @Override
     public void receiveRREQ(MessageRREQ messageRREQ) {
-        logger.debug("节点{}收到节点{}对节点{}发起的路由请求，正在处理中...", this.ip, messageRREQ.getSrcIP(), messageRREQ.getDestinationIP());
+        logger.debug("【{}】 received RREQ about 【{}】sent to 【{}】，processing...", this.ip, messageRREQ.getSrcIP(), messageRREQ.getDestinationIP());
         //将转发该消息的节点地址加入到先驱列表中
         precursorIPs.add(messageRREQ.getRouteIP());
         int key = messageRREQ.getSrcIP();
         //如果收到的信息里面，请求的序列号的键存在，并且小于等于本机所存，则抛弃
         if (routeTable.containsKey(key) && routeTable.get(key).getSeqNum() >= messageRREQ.getSeqNum()) {
-            logger.warn("旧路由序列号{}，抛弃...", messageRREQ.getSeqNum());
+            logger.warn("【{}】drops the old seq 【{}】...", messageRREQ.getSeqNum());
             return;
         } else {
             //更新自己的路由表，路由表项的信息为该信息的源节点为目的地址，去往该目的地址的下一跳节点即为转发该信息的节点
@@ -176,7 +160,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         }
         //如果收到的信息中是寻找本机，则回复路由响应
         if (ip == (messageRREQ.getDestinationIP())) {
-            logger.debug("本节点收到节点{}的路由请求，该节点系统信息如下:{}", messageRREQ.getSrcIP(), messageRREQ.getSystemInfo().toString());
+            logger.debug("【{}】received RREQ from 【{}】successfully and its system info【{}】", messageRREQ.getSrcIP(), messageRREQ.getSystemInfo().toString());
 
             MessageRREP messageRREP = new MessageRREP(ip,0,seqNum++,systemInfo);
 
@@ -188,8 +172,8 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         RouteEntry routeEntry=queryRouteTable(messageRREQ.getDestinationIP());
         //如果本机有到要寻找的目的节点的路由，则回复路由请求
         if(routeEntry!=null){
-            logger.debug("本机存储有到节点{}的路由，" +
-                    "回复路由请求。", messageRREQ.getDestinationIP());
+            logger.debug("【{}】 has routing to【{}】" +
+                    messageRREQ.getDestinationIP());
             MessageRREP messageRREP = new MessageRREP(ip,0,seqNum++,routeEntry.getSystemInfo());
             messageRREP.setDestinationIP(messageRREQ.getSrcIP());
             messageRREP.setSrcIP(messageRREQ.getDestinationIP());
@@ -207,24 +191,24 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     //如果不是发送给自己的RREQ则将其转发出去
     @Override
     public void forwardRREQ(MessageRREQ messageRREQ) {
-        logger.debug("节点{}转发节点{}对节点{}发起的路由请求...", this.ip, messageRREQ.getSrcIP(), messageRREQ.getDestinationIP());
+        logger.debug("【{}】forward RREQ of 【{}】sent to【{}】...", this.ip, messageRREQ.getSrcIP(), messageRREQ.getDestinationIP());
         try {
             adhocTransfer.send(messageRREQ);
-            logger.debug("节点{}转发{}对{}路由请求成功!",this.ip,messageRREQ.getSrcIP(),messageRREQ.getDestinationIP());
+            logger.debug("【{}】forward RREQ about 【{}】 sent to 【{}】 successfully!",this.ip,messageRREQ.getSrcIP(),messageRREQ.getDestinationIP());
         } catch (IOException e) {
-            logger.error("节点{}转发{}对{}路由请求失败，发送线程创建失败!", this.ip,messageRREQ.getSrcIP(),messageRREQ.getDestinationIP());
+            logger.error("【{}】forward RREQ about 【{}】 sent to 【{}】 failed!", this.ip,messageRREQ.getSrcIP(),messageRREQ.getDestinationIP());
         }
     }
 
     //对请求自己路由回复路由请求
     @Override
     public void sendRREP(MessageRREP messageRREP) {
-        logger.debug("节点{}回复节点{}的路由请求...",this.ip,messageRREP.getDestinationIP());
+        logger.debug("【{}】sending RREP to 【{}】...",this.ip,messageRREP.getDestinationIP());
         try {
             adhocTransfer.send(messageRREP);
-            logger.debug("节点{}对{}路由回复成功!", this.ip, messageRREP.getDestinationIP());
+            logger.debug("【{}】sending RREP to 【{}】 successfully!", this.ip, messageRREP.getDestinationIP());
         } catch (IOException e) {
-            logger.warn("节点{}对{}路由回复失败!", this.ip, messageRREP.getDestinationIP());
+            logger.warn("【{}】sending RREP to 【{}】failed!", this.ip, messageRREP.getDestinationIP());
 
         }
     }
@@ -239,13 +223,13 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
      */
     @Override
     public void receiveRREP(MessageRREP messageRREP) {
-        logger.debug("节点{}收到节点{}对节点{}发起的路由回复，正在处理中...", this.ip, messageRREP.getSrcIP(), messageRREP.getDestinationIP());
+        logger.debug("【{}】 received RREP about 【{}】sent to 【{}】，processing...", this.ip, messageRREP.getSrcIP(), messageRREP.getDestinationIP());
         //将转发该消息的节点地址加入到先驱列表中
         precursorIPs.add(messageRREP.getRouteIP());
         int key = messageRREP.getSrcIP();
         //如果收到的信息里面，请求的序列号的键存在，并且小于等于本机所存，则抛弃
         if (routeTable.containsKey(key) && routeTable.get(key).getSeqNum() >= messageRREP.getSeqNum()) {
-            logger.warn("旧路由序列号{}，抛弃...", messageRREP.getSeqNum());
+            logger.warn("【{}】drops the old seq 【{}】...", messageRREP.getSeqNum());
             return;
         } else {
             routeTable.put(key, new RouteEntry(key, messageRREP.getRouteIP()
@@ -253,7 +237,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         }
         //如果收到的信息中是寻找本机，则回复路由响应
         if (ip == messageRREP.getDestinationIP()) {
-            logger.debug("节点{}发起的对节点{}的路由请求成功，\n收到该节点的路由回复，该节点系统信息如下:{}",
+            logger.debug("【{}】received RREQ from 【{}】successfully and its system info【{}】",
                     this.ip, messageRREP.getSrcIP(), messageRREP.getSystemInfo().toString());
             return;
         }
@@ -267,12 +251,12 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     //如果不是发送给自己的RREP则将其转发出去
     @Override
     public void forwardRREP(MessageRREP messageRREP) {
-        logger.debug("节点{}转发节点{}对节点{}的路由回复...", this.ip, messageRREP.getSrcIP(), messageRREP.getDestinationIP());
+        logger.debug("【{}】forward RREP of 【{}】sent to【{}】...", this.ip, messageRREP.getSrcIP(), messageRREP.getDestinationIP());
         try {
             adhocTransfer.send(messageRREP);
-            logger.debug("节点{}转发{}对{}路由回复成功!", this.ip, messageRREP.getSrcIP(), messageRREP.getDestinationIP());
+            logger.debug("【{}】forward RREQ of 【{}】sent to【{}】successfully!", this.ip, messageRREP.getSrcIP(), messageRREP.getDestinationIP());
         } catch (IOException e) {
-            logger.warn("节点{}转发{}对{}路由回复失败!", this.ip, messageRREP.getSrcIP(), messageRREP.getDestinationIP());
+            logger.warn("【{}】forward RREQ of 【{}】sent to【{}】failed!", this.ip, messageRREP.getSrcIP(), messageRREP.getDestinationIP());
         }
     }
 
@@ -301,7 +285,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
             MessageHello message = MessageHello.recoverMsg(bytes);
             helloHandler(message);
         }else {
-            logger.warn("无效数据格式!!");
+            logger.warn("Invalid data format!");
         }
     }
 
@@ -310,22 +294,22 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         //节点想要给目的节点发送消息，首先查询本节点中路由表是否有可用的有效路由，如果没有就发起路由请求
         RouteEntry routeEntry = queryRouteTable(destinationIP);
         if (routeEntry == null) {
-            logger.debug("本节点{}还没有到节点{}的路由，开始路由请求...", this.getIp(), destinationIP);
+            logger.debug("【{}】has no routing about 【{}】,sent RREQ firstly...", this.getIp(), destinationIP);
             sendRREQ(destinationIP);
             //需要等待路由回复.....轮番查询五次，每次等待1秒，如果五次查询都失败，则宣布路由寻找失败
             try {
                 for (int i = 1; i <= POLLING_COUNT; i++) {
-                    logger.debug("节点{}等待节点{}的路由回复：{}", this.ip, destinationIP, i);
+                    logger.debug("【{}】waiting RREP from 【{}】", this.ip, destinationIP, i);
                     Thread.sleep(POLING_TIMER);
                     routeEntry = queryRouteTable(destinationIP);
                     if (routeEntry == null) {
                         if(i==POLLING_COUNT){
-                            logger.warn("节点{}寻找节点{}路由失败！",this.ip,destinationIP);
+                            logger.warn("【{}】 searched for 【{}】failed！",this.ip,destinationIP);
                             //System.exit(1);
                         }
                         continue;
                     }else{
-                        logger.debug("节点{}寻找节点{}路由成功 ！", this.ip, destinationIP);
+                        logger.debug("【{}】 searched for 【{}】successfully！", this.ip, destinationIP);
                         break;
                     }
                 }
@@ -341,9 +325,9 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
             messageData.setNextIP(routeEntry.getNextHopIP());
             try {
                 adhocTransfer.send(messageData);
-                logger.debug("节点{}向{}数据发送成功!",this.ip,destinationIP);
+                logger.debug("【{}】 sent datagram to 【{}】 successfully！",this.ip,destinationIP);
             } catch (IOException e) {
-                logger.warn("节点{}向{}数据发送失败!", this.ip, destinationIP);
+                logger.warn("【{}】 sent datagram to 【{}】 failed！", this.ip, destinationIP);
             }
         }
     }
@@ -355,16 +339,16 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
 
         int destinationIP = messageData.getDestinationIP();
         if (destinationIP == ip) {
-            logger.debug("节点{}收到来自{}的数据，" + "内容为：{}", this.ip, messageData.getSrcIP(), new String(messageData.getContent()));
+            logger.debug("【{}】 received datagram from 【{}】,content ：【{}】", this.ip, messageData.getSrcIP(), new String(messageData.getContent()));
             return;
         }
 
         if (nextIP != ip){
-            logger.debug("本节点收到节点{}发往节点{}的数据！我不是中转节点，抛弃！", messageData.getSrcIP(), messageData.getDestinationIP());
+            logger.debug("【{}】 received data from 【{}】want sent to 【{}】but not interchange node,drops the datagram！", messageData.getSrcIP(), messageData.getDestinationIP());
             return;
         }
 
-        logger.debug("节点{}收到节点{}发往节点{}的数据！我是中转节点，处理中！",this.ip,messageData.getSrcIP(),messageData.getDestinationIP());
+        logger.debug("【{}】 received data from 【{}】want sent to 【{}】but not interchange node,processing the datagram！！",this.ip,messageData.getSrcIP(),messageData.getDestinationIP());
 
         //查询本节点的路由表，得到去往目的节点的下一跳节点，并改变消息中的下一跳节点地址后转发出去
         int next = queryRouteTable(destinationIP).getNextHopIP();
@@ -386,9 +370,9 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         logger.debug("节点{}转发节点{}对节点{}的数据...",this.ip,messageData.getSrcIP(),messageData.getDestinationIP());
         try {
             adhocTransfer.send(messageData);
-            logger.debug("转发数据成功!");
+            logger.debug("【{}】 forward datagram  successfully！",this.ip);
         } catch (IOException e) {
-            logger.warn("转发数据失败!");
+            logger.warn("【{}】 forward datagram failed!",this.ip);
         }
     }
 

@@ -1,5 +1,7 @@
 package cn.edu.uestc.Adhoc.utils;
 
+import java.util.Arrays;
+
 /**
  * Created by walter on 15-12-14.
  */
@@ -20,5 +22,26 @@ public class MessageUtils {
         temp <<= 8;
         int number = temp | temp2;
         return number;
+    }
+
+    public static byte[] mergeArray(byte[]... args){
+        int len = args.length;
+        if(len<2){
+            return args[0];
+        }
+        int newlen = 0;
+        for(int i=0;i<len;i++){
+            newlen+=args[i].length;
+        }
+        byte[] newArray = new byte[newlen];
+        for(int i=0;i<len;i++){
+            int start=0;
+            int j=0;
+            for(;j<args[i].length;j++){
+                newArray[j+start]=args[i][j];
+            }
+            start=j;
+        }
+        return newArray;
     }
 }

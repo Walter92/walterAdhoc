@@ -27,27 +27,27 @@ public class AdhocNodeFactory {
         props = new Properties();
         try {
             if(in!=null) {
-                logger.debug("载入端口映射文件...");
+                logger.debug("load config file of port mapping...");
                 //载入配置文件
                 props.load(in);
             }else{
-                logger.warn("没有找到端口映射配置文件!");
+                logger.warn("not exist config file!");
                 throw new NullPointerException();
             }
         } catch (IOException e) {
-            logger.warn("载入配置文件出错！堆栈信息如下:");
+            logger.warn("load config file exception:");
             e.printStackTrace();
             throw new RuntimeException();
         }
     }
 
-    //生产一个节点实例
-    public static AdhocNode getInstance(String portName) {
-        //获取配置文件中对应key，去掉key的多余空格和转化为小写
-        portName = props.getProperty(portName.trim().toLowerCase());
-        return new AdhocNode(portName);
-//        return null;
-    }
+//    //生产一个节点实例
+//    public static AdhocNode getInstance(String portName) {
+//        //获取配置文件中对应key，去掉key的多余空格和转化为小写
+//        portName = props.getProperty(portName.trim().toLowerCase());
+//        return new AdhocNode(portName);
+////        return null;
+//    }
 
     //生产一个节点实例
     public static AdhocNode getInstance(String portName,int ip) {

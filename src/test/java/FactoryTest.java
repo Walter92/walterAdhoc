@@ -7,6 +7,6 @@ import org.junit.Test;
 public class FactoryTest {
 //    @Test
     public void testFactory(){
-        System.out.println(AdhocNodeFactory.getInstance("usb0"));
+        System.out.println(AdhocNodeFactory.getInstance("usb0",3));
     }
 }

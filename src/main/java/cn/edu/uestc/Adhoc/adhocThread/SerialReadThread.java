@@ -27,20 +27,20 @@ public class SerialReadThread implements Runnable, SerialPortEventListener {
         bis = new BufferedInputStream(this.is);
         try {
             // 在节点上注册事件监听器
-            logger.debug("初始化对象输入流成功！！");
-            logger.debug("为串口注册事件监听...");
+            logger.debug("init input stream success！！");
+            logger.debug("register listener to serial port...");
             serial.serialPort.addEventListener(this);
         } catch (TooManyListenersException e) {
             e.printStackTrace();
         } catch (Exception e) {
-            logger.warn("初始化对象输入流失败！！");
+            logger.warn("init stream failed！！");
             e.printStackTrace();
         }
         // 通知数据可用，开始读数据
         serial.serialPort.notifyOnDataAvailable(true);
         readThread = new Thread(this);
         readThread.start();
-        logger.debug("接收线程初始化完毕！");
+        logger.debug("init reader thread done！");
     }
 
     @Override
@@ -92,7 +92,7 @@ public class SerialReadThread implements Runnable, SerialPortEventListener {
                         //将数组合并，把bytes的内容追加到buff
                         System.arraycopy(bytes, 0, buff, lengthOfBuff, bytes.length);
 
-                        logger.debug("收到数据:" + Arrays.toString(bytes));
+                        //logger.debug("收到数据:" + Arrays.toString(bytes));
 //                        System.out.println("Buff::::" + Arrays.toString(buff));
                         if (buff[0] == RouteProtocol.frameHeader[0] && buff[1] == RouteProtocol.frameHeader[1]) {
 //                            System.out.println("帧头校验成功！");
