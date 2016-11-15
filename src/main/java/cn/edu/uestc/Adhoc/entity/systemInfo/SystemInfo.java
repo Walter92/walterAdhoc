@@ -9,10 +9,12 @@ import java.util.Arrays;
  */
 public class SystemInfo {
     private static final String UNDER_LINE = "_";
+    public static final int DEFAULT_BYTE = 20;
     private int processorCount;
     private int memorySize;
     private String osName;
     private String osArch;
+    private byte[] sysInfoByte;
 
     public SystemInfo() {
         Runtime rt = Runtime.getRuntime();
@@ -23,7 +25,7 @@ public class SystemInfo {
         this.processorCount = rt.availableProcessors();
         this.osName = System.getProperty("os.name");
         this.osArch = System.getProperty("os.arch");
-
+        initSysInfoBytes();
     }
 
     public SystemInfo(int processorCount, int memorySize) {
@@ -31,40 +33,28 @@ public class SystemInfo {
         this.memorySize = memorySize;
     }
 
-    public int getProcessorCount() {
-        return processorCount;
-    }
+    private void initSysInfoBytes(){
+        sysInfoByte = new byte[DEFAULT_BYTE];
 
-    public void setProcessorCount(int processorCount) {
-        this.processorCount = processorCount;
-    }
-
-    public int getMemorySize() {
-        return memorySize;
-    }
-
-    public void setMemorySize(int memorySize) {
-        this.memorySize = memorySize;
+        sysInfoByte[0] = (byte) processorCount;
+        sysInfoByte[1] = MessageUtils.IntToBytes(memorySize)[0];
+        sysInfoByte[2] = MessageUtils.IntToBytes(memorySize)[1];
+        byte[] osNameAndArch = (osName + UNDER_LINE + osArch).getBytes();
+        for(int i=0;i<osNameAndArch.length;i++){
+            sysInfoByte[3+i]=osNameAndArch[i];
+        }
     }
 
     public byte[] getBytes() {
-        byte[] sysInfo = new byte[3];
-        sysInfo[0] = (byte) processorCount;
-        sysInfo[1] = MessageUtils.IntToBytes(memorySize)[0];
-        sysInfo[2] = MessageUtils.IntToBytes(memorySize)[1];
-        byte[] osNameAndArch = (osName + UNDER_LINE + osArch).getBytes();
-        byte[] sysInfos = new byte[sysInfo.length + osNameAndArch.length];
-        System.arraycopy(sysInfo, 0, sysInfos, 0, sysInfo.length);
-        System.arraycopy(osNameAndArch, 0, sysInfos, sysInfo.length, osNameAndArch.length);
-        return sysInfos;
+        return sysInfoByte;
     }
 
     public static SystemInfo recoverSysInfo(byte[] bytes) {
         SystemInfo systemInfo = new SystemInfo(bytes[0], MessageUtils.BytesToInt(new byte[]{bytes[1], bytes[2]}));
-        String osNameAndArch = new String(bytes, 3, bytes.length - 3);
-        systemInfo.setOsName(osNameAndArch.split(UNDER_LINE)[0]);
-        systemInfo.setOsArch(osNameAndArch.split(UNDER_LINE)[1]);
-
+        String[] osNameAndArch = new String(bytes, 3, bytes.length - 3).split(UNDER_LINE);
+        systemInfo.osName=osNameAndArch[0];
+        systemInfo.osArch=osNameAndArch[1];
+        systemInfo.initSysInfoBytes();
         return systemInfo;
     }
 
@@ -72,17 +62,11 @@ public class SystemInfo {
         return osArch;
     }
 
-    public void setOsArch(String osArch) {
-        this.osArch = osArch;
-    }
 
     public String getOsName() {
         return osName;
     }
 
-    public void setOsName(String osName) {
-        this.osName = osName;
-    }
 
     @Override
     public String toString() {

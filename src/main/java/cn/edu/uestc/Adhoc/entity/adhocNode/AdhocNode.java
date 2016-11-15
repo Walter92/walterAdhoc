@@ -98,11 +98,11 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
 
         //节点对串口进行监听
         adhocTransfer.addReceiveListener(this);
-        logger.debug("the ip 【{}】 of node listen status about serial...", this.ip);
+        logger.debug("【{}】listens status about serial...", this.ip);
         adhocTransfer.receive();
 
-        logger.debug("the ip 【{}】of node start reader thread，waiting for data...", this.ip);
-        logger.debug("the ip 【{}】of node init done！", this.ip);
+        logger.debug("【{}】started reader thread,waiting for data...", this.ip);
+        logger.debug("【{}】init done！", this.ip);
     }
 
     //当串口中数据被更新后执行的方法
@@ -143,7 +143,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     //在数据类型方法解析后调用，开始解析数据中内容，判断是否为发送给自己的RREQ
     @Override
     public void receiveRREQ(MessageRREQ messageRREQ) {
-        logger.debug("【{}】 received RREQ about 【{}】sent to 【{}】，processing...", this.ip, messageRREQ.getSrcIP(), messageRREQ.getDestinationIP());
+        logger.debug("【{}】 received RREQ about 【{}】sent to 【{}】,processing...", this.ip, messageRREQ.getSrcIP(), messageRREQ.getDestinationIP());
         //将转发该消息的节点地址加入到先驱列表中
         precursorIPs.add(messageRREQ.getRouteIP());
         int key = messageRREQ.getSrcIP();
@@ -159,7 +159,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         }
         //如果收到的信息中是寻找本机，则回复路由响应
         if (ip == (messageRREQ.getDestinationIP())) {
-            logger.debug("【{}】received RREQ from 【{}】successfully and its system info【{}】", messageRREQ.getSrcIP(), messageRREQ.getSystemInfo().toString());
+            logger.debug("【{}】received RREQ from 【{}】successfully and its system info【{}】",ip, messageRREQ.getSrcIP(),messageRREQ.getSystemInfo().toString());
 
             MessageRREP messageRREP = new MessageRREP(ip, 0, seqNum++, systemInfo);
 
@@ -222,7 +222,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
      */
     @Override
     public void receiveRREP(MessageRREP messageRREP) {
-        logger.debug("【{}】 received RREP about 【{}】sent to 【{}】，processing...", this.ip, messageRREP.getSrcIP(), messageRREP.getDestinationIP());
+        logger.debug("【{}】 received RREP about 【{}】sent to 【{}】,processing...", this.ip, messageRREP.getSrcIP(), messageRREP.getDestinationIP());
         //将转发该消息的节点地址加入到先驱列表中
         precursorIPs.add(messageRREP.getRouteIP());
         int key = messageRREP.getSrcIP();
@@ -236,7 +236,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         }
         //如果收到的信息中是寻找本机，则回复路由响应
         if (ip == messageRREP.getDestinationIP()) {
-            logger.debug("【{}】received RREQ from 【{}】successfully and its system info【{}】",
+            logger.debug("【{}】 received RREQ from 【{}】successfully and its system info【{}】",
                     this.ip, messageRREP.getSrcIP(), messageRREP.getSystemInfo().toString());
             return;
         }
@@ -262,7 +262,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     //在接收线程接收到数据后调用，主要解析数据类型，再恢复为相应的Message对象,并传递给相应的接收方法
     @Override
     public void dataParsing(byte[] bytes) {
-        byte type = bytes[2];
+        byte type = bytes[3];
         //Message message = null;
         //如果是数据类型则恢复为数据MessageData，并且交给数据类型接收方法
         if (type == RouteProtocol.DATA) {

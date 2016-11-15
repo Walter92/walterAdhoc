@@ -56,27 +56,23 @@ public class MessageData extends Message {
         byte[] nextByte = MessageUtils.IntToBytes(nextIP);
         byte[] destinationByte = MessageUtils.IntToBytes(getDestinationIP());
         int IPAndSoOnLen = 3 * 2 + 1 + 1;//三个IP长度加上数据类型，加上数据长度变量所占长度
-        int len = RouteProtocol.PROTOCOL_LEN * 2 + dataLen + IPAndSoOnLen;
+        byte len = (byte)(RouteProtocol.PROTOCOL_LEN * 2 + dataLen + IPAndSoOnLen+1);
         byte[] messageByte = new byte[len];
         messageByte[0] = RouteProtocol.frameHeader[0];
         messageByte[1] = RouteProtocol.frameHeader[1];//帧头,0,1
+        messageByte[2] = len;
+        messageByte[3] = RouteProtocol.DATA;//数据类型,3
 
-        messageByte[2] = RouteProtocol.DATA;//数据类型,2
+        messageByte[4] = srcByte[0];
+        messageByte[5] = srcByte[1];//源节点,3,4
 
-        messageByte[3] = srcByte[0];
-        messageByte[4] = srcByte[1];//源节点,3,4
+        messageByte[6] = nextByte[0];
+        messageByte[7] = nextByte[1];//转发节点,6,7
 
-        messageByte[5] = nextByte[0];
-        messageByte[6] = nextByte[1];//转发节点,5,6
-
-        messageByte[7] = destinationByte[0];
-        messageByte[8] = destinationByte[1];//目标节点7,8
-
-        messageByte[9] = (byte) dataLen;
-        //待发送的字节数组
-        for (int i = 10; i < len - 2; i++) {
-            messageByte[i] = content[i - 10];
-        }
+        messageByte[8] = destinationByte[0];
+        messageByte[9] = destinationByte[1];//目标节点8,9
+        messageByte[10] = (byte)dataLen;
+        System.arraycopy(content,0,messageByte,11,dataLen);
 
         messageByte[len - 2] = RouteProtocol.frameEnd[0];
         messageByte[len - 1] = RouteProtocol.frameEnd[1];//帧尾
@@ -95,11 +91,11 @@ public class MessageData extends Message {
     //将byte数组转化为Message对象
     public static MessageData recoverMsg(byte[] bytes) {
         ///恢复byte数组中的数据
-        int srcIP = MessageUtils.BytesToInt(new byte[]{bytes[3], bytes[4]});
-        int nextIP = MessageUtils.BytesToInt(new byte[]{bytes[5], bytes[6]});
-        int destinationIP = MessageUtils.BytesToInt(new byte[]{bytes[7], bytes[8]});
-        byte dataLength = bytes[9];
-        byte[] information = Arrays.copyOfRange(bytes, 10, bytes.length - 2);
+        int srcIP = MessageUtils.BytesToInt(new byte[]{bytes[4], bytes[5]});
+        int nextIP = MessageUtils.BytesToInt(new byte[]{bytes[6], bytes[7]});
+        int destinationIP = MessageUtils.BytesToInt(new byte[]{bytes[8], bytes[9]});
+        byte dataLength = bytes[10];
+        byte[] information = Arrays.copyOfRange(bytes, 11, bytes.length-2);
 
         MessageData message = new MessageData(nextIP, information);
         message.setSrcIP(srcIP);
@@ -108,5 +104,14 @@ public class MessageData extends Message {
         message.setType(RouteProtocol.DATA);
 
         return message;
+    }
+
+    public static void main(String[] args){
+        MessageData messageData = new MessageData(2,"walter".getBytes());
+        byte[] bytes = messageData.getBytes();
+        System.out.println(Arrays.toString("walter".getBytes()));
+        System.out.println(Arrays.toString(bytes));
+        MessageData messageData1 = recoverMsg(bytes);
+        System.out.println(messageData1);
     }
 }

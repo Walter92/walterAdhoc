@@ -5,7 +5,10 @@ import cn.edu.uestc.Adhoc.entity.route.RouteProtocol;
 import cn.edu.uestc.Adhoc.entity.systemInfo.SystemInfo;
 import cn.edu.uestc.Adhoc.utils.MessageUtils;
 
+import java.util.Arrays;
+
 public class MessageRREP extends Message {
+    private static final int DEFAULT_BYTE = 34;
     //转发节点的IP
     private int routeIP;
     //发送的数据长度
@@ -67,37 +70,67 @@ public class MessageRREP extends Message {
         byte[] routeByte = MessageUtils.IntToBytes(routeIP);
         byte[] destinationByte = MessageUtils.IntToBytes(getDestinationIP());
         byte[] sysByte = systemInfo.getBytes();
-        byte[] messageByte = {
-                RouteProtocol.frameHeader[0], RouteProtocol.frameHeader[1],//帧头,0,1
-                RouteProtocol.RREP,//数据类型,2
-                srcByte[0], srcByte[1],//源节点,3,4
-                routeByte[0], routeByte[1],//转发节点,5,6
-                destinationByte[0], destinationByte[1],//目标节点7,8
-                (byte) seqNum,//序列号,9
-                (byte) hop,//跳数,10
-                sysByte[0], sysByte[1], sysByte[2],//系统信息,11,12,13
-                RouteProtocol.frameEnd[0], RouteProtocol.frameEnd[1]//帧尾,14,15
-        };
+        byte[] messageByte = new byte[DEFAULT_BYTE];
+        messageByte[0] = RouteProtocol.frameHeader[0];
+        messageByte[1] = RouteProtocol.frameHeader[1];//帧头,0,1
+        messageByte[2] = DEFAULT_BYTE;
+        messageByte[3] = RouteProtocol.RREP;//数据类型,3
+
+        messageByte[4] = srcByte[0];
+        messageByte[5] = srcByte[1];//源节点,4,5
+
+        messageByte[6] = routeByte[0];
+        messageByte[7] = routeByte[1];//转发节点,5,6
+
+        messageByte[8] = destinationByte[0];
+        messageByte[9] = destinationByte[1];//目标节点8,9
+
+        messageByte[10] = (byte) seqNum;//序列号,10
+        messageByte[11] = (byte) hop;//跳数,11
+        System.arraycopy(sysByte,0,messageByte,12,sysByte.length);//系统信息,12-31
+
+        messageByte[32] = RouteProtocol.frameEnd[0];
+        messageByte[33] = RouteProtocol.frameEnd[1];//帧尾,32,33
+
         return messageByte;
     }
 
     //将byte数组转化为Message对象，解码
     public static MessageRREP recoverMsg(byte[] bytes) {
         ///恢复byte数组中的数据
-        int srcIP = MessageUtils.BytesToInt(new byte[]{bytes[3], bytes[4]});
-
-        int routeIP = MessageUtils.BytesToInt(new byte[]{bytes[5], bytes[6]});
-        int destinationIP = MessageUtils.BytesToInt(new byte[]{bytes[7], bytes[8]});
-
-        byte seqNum = bytes[9];
-        byte hop = bytes[10];
-
-        SystemInfo sysInfo = SystemInfo.recoverSysInfo(new byte[]{bytes[11], bytes[12], bytes[13]});
+        int srcIP = MessageUtils.BytesToInt(new byte[]{bytes[4], bytes[5]});
+        int routeIP = MessageUtils.BytesToInt(new byte[]{bytes[6], bytes[7]});
+        int destinationIP = MessageUtils.BytesToInt(new byte[]{bytes[8], bytes[9]});
+        byte seqNum = bytes[10];
+        byte hop = bytes[11];
+        byte[] sysInfoByte = new byte[SystemInfo.DEFAULT_BYTE];
+        System.arraycopy(bytes,12,sysInfoByte,0,SystemInfo.DEFAULT_BYTE);
+        SystemInfo sysInfo = SystemInfo.recoverSysInfo(sysInfoByte);
 
         MessageRREP message = new MessageRREP(routeIP, hop, seqNum, sysInfo);
         message.setSrcIP(srcIP);
         message.setDestinationIP(destinationIP);
         message.setType(RouteProtocol.RREP);
         return message;
+    }
+
+    @Override
+    public String toString() {
+        return "MessageRREP{" +
+                "routeIP=" + routeIP +
+                ", systemInfo=" + systemInfo +
+                ", hop=" + hop +
+                ", seqNum=" + seqNum +
+                '}';
+    }
+
+
+    public static void main(String[] args){
+        MessageRREP messageRREP = new MessageRREP(2,3,4,new SystemInfo());
+        System.out.println(messageRREP);
+        byte[] bytes = messageRREP.getBytes();
+        System.out.println(bytes.length+":::"+ Arrays.toString(bytes));
+        MessageRREP messageRREP1 = recoverMsg(bytes);
+        System.out.println(messageRREP1);
     }
 }

@@ -11,7 +11,7 @@ import java.util.Arrays;
  */
 public class AdhocTest2 {
     public static void main(String[] args) throws Exception {
-        AdhocNode adhocNode = AdhocNodeFactory.getInstance("usb0",1);
+        AdhocNode adhocNode = AdhocNodeFactory.getInstance("usb3",1);
 //        try{
 //            Thread.sleep(5000);
 ////            adhocNode.sendMessage("");
