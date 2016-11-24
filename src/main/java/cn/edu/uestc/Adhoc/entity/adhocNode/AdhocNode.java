@@ -53,7 +53,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     private HashSet<Integer> precursorIPs = new HashSet<Integer>();
 
     //接收到的hello报文的发送者队列，当收到某hello报文时将其加入到队列中，路由维护线程从对列中取出数据，用于更新路由表项的生存时间
-    private Queue<Integer> helloMessagesQueue = new ArrayDeque<Integer>();
+    private final Queue<Integer> helloMessagesQueue = new ArrayDeque<Integer>();
 
     // 节点的处理器个数以及最大内存
     private SystemInfo systemInfo = new SystemInfo();
@@ -369,7 +369,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         logger.debug("节点{}转发节点{}对节点{}的数据...", this.ip, messageData.getSrcIP(), messageData.getDestinationIP());
         try {
             adhocTransfer.send(messageData);
-            logger.debug("【{}】 forward datagram  successfully！", this.ip);
+            logger.debug("【{}】 forward datagram successfully！", this.ip);
         } catch (IOException e) {
             logger.warn("【{}】 forward datagram failed!", this.ip);
         }
