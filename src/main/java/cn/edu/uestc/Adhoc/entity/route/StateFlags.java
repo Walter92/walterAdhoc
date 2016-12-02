@@ -1,5 +1,8 @@
 package cn.edu.uestc.Adhoc.entity.route;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public enum StateFlags {
     // The entry is believed Viable.
     VALID,
@@ -22,5 +25,15 @@ public enum StateFlags {
      * A route request has been sent for this destination ID, but no
      * response has been received.
      */
-    RREQSENT
+    RREQSENT;
+    static Map<StateFlags,String> map = new HashMap<StateFlags, String>();
+    static {
+        map.put(VALID,"有效");
+        map.put(INVALID,"无效");
+        map.put(REPAIRABLE,"可恢复");
+        map.put(EXPIRED,"过期");
+    }
+    public String getShow(){
+        return map.get(this);
+    }
 }

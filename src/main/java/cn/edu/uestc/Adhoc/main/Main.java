@@ -2,16 +2,18 @@ package cn.edu.uestc.Adhoc.main;
 
 import cn.edu.uestc.Adhoc.entity.adhocNode.AdhocNode;
 import cn.edu.uestc.Adhoc.entity.factory.AdhocNodeFactory;
+import cn.edu.uestc.Adhoc.entity.route.RouteEntry;
 import cn.edu.uestc.Adhoc.entity.systemInfo.SystemInfo;
-import org.slf4j.Logger;
 
 import javax.swing.*;
-import javax.swing.text.JTextComponent;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.*;
-import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by walter on 16-11-21.
@@ -20,7 +22,7 @@ public class Main {
     String AdhocIp = JOptionPane.showInputDialog("输入节点IP");
     String AdhocPortName = JOptionPane.showInputDialog("输入节点串口名");
     JFrame jFrame = new JFrame("自组网节点");
-    JTextArea conslo = new ConsoleText(32,48);
+    JTextArea conslo = new ConsoleText(40,70);
 
     JButton sendRREQ = new JButton("发送路由请求");
     JButton sendTxt = new JButton("发送文本");
@@ -30,14 +32,6 @@ public class Main {
     private Main(){init();}
 
     public static void main(String[] args) {
-//        if (args == null || args.length == 0){
-//            System.out.println("please input port name and node ip!!");
-//            System.exit(-1);
-//        }
-//        args = new String[3];
-//        args[0]="usb1";
-//        args[1]=1+"";
-//        AdhocNode adhocNode = AdhocNodeFactory.getInstance(args[0],Integer.parseInt(args[1]));
         new Main();
     }
 
@@ -102,7 +96,13 @@ public class Main {
             }
         });
 
-
+        queryRoute.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                Map<Integer,RouteEntry> routeTable = adhocNode.queryAllRoute();
+                display(routeTable);
+            }
+        });
         jPanel.add(destAdhoc);
         jPanel.add(sendRREQ);
         jPanel.add(sendTxt);
@@ -112,8 +112,44 @@ public class Main {
         jFrame.add(adhocInfo,BorderLayout.NORTH);
         jFrame.add(scroll,BorderLayout.CENTER);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         jFrame.pack();
         jFrame.setVisible(true);
+    }
+
+    private void display(Map<Integer,RouteEntry> routeTable){
+        JFrame routingTable = new JFrame("本机路由表");
+        String[] columnTitle={"目标IP","序列号","跳数","下一跳IP","目标系统信息","状态"};
+        int rows = routeTable.size();
+        Object[][] cells = new Object[rows][columnTitle.length];
+        Set<Integer> keys =  routeTable.keySet();
+        int i=0;
+        for(Integer integer:keys){
+            RouteEntry entry = routeTable.get(integer);
+            cells[i][0]=entry.getDestIP();
+            cells[i][1]=entry.getSeqNum();
+            cells[i][2]=entry.getHopCount();
+            cells[i][3]=entry.getNextHopIP();
+//            JButton showSysInfo = new JButton("查看");
+//            showSysInfo.addMouseListener(new MouseAdapter() {
+//                @Override
+//                public void mouseClicked(MouseEvent e) {
+//                    JOptionPane.showMessageDialog(routingTable,entry.getSystemInfo());
+//                }
+//            });
+            cells[i][4]=entry.getSystemInfo();
+            cells[i][5]=entry.getState().getShow();
+            ++i;
+        }
+        ExtTable extTable = new ExtTable(columnTitle,cells);
+        JTable table = new JTable(extTable);
+        table.setRowSelectionAllowed(false);
+        table.setRowHeight(40);
+        table.setRowMargin(20);
+        routingTable.add(new JScrollPane(table));
+        routingTable.pack();
+        routingTable.setVisible(true);
+
     }
 //
 //    class DynamicDisplay implements Runnable {
@@ -126,7 +162,15 @@ public class Main {
 //
 //        }
 //    }
-
+    class ExtTable extends DefaultTableModel{
+        public ExtTable(String[] columnTable,Object[][] cells){
+            super(cells,columnTable);
+        }
+        public Class getColumnClass(int c){
+            Object object = getValueAt(0,c);
+            return object.getClass();
+        }
+    }
     class LoopedStreams {
         private PipedOutputStream pipedOS =
                 new PipedOutputStream();
