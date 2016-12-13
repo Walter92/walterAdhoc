@@ -28,9 +28,9 @@ public class AdhocNodeFactory {
         props = new Properties();
         try {
             if (in != null) {
-                logger.debug("load config file of port mapping...");
                 //载入配置文件
                 props.load(in);
+                logger.debug("load config file of port mapping successfully");
             } else {
                 logger.warn("not exist config file!");
                 throw new NullPointerException();

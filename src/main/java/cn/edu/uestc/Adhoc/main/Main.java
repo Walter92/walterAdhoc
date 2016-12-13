@@ -20,7 +20,7 @@ import java.util.Set;
  */
 public class Main {
     String AdhocIp = JOptionPane.showInputDialog("输入节点IP");
-    String AdhocPortName = JOptionPane.showInputDialog("输入节点串口名");
+    String AdhocPortName = JOptionPane.showInputDialog("输入节点端口名");
     JFrame jFrame = new JFrame("自组网节点");
     JTextArea conslo = new ConsoleText(40,70);
 
