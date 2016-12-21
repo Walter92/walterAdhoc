@@ -13,20 +13,22 @@ import java.awt.event.MouseEvent;
 import java.io.*;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
  * Created by walter on 16-11-21.
  */
 public class Main {
-    String AdhocIp = JOptionPane.showInputDialog("输入节点IP");
-    String AdhocPortName = JOptionPane.showInputDialog("输入节点端口名");
+    String AdhocIp ;
+    String AdhocPortName ;
     JFrame jFrame = new JFrame("自组网节点");
     JTextArea conslo = new ConsoleText(40,70);
 
     JButton sendRREQ = new JButton("发送路由请求");
     JButton sendTxt = new JButton("发送文本");
     JButton queryRoute = new JButton("查询本机路由表");
+    JButton clearRouteTable = new JButton("清空路由表");
     JPanel jPanel = new JPanel(new GridLayout(10,1));
     AdhocNode adhocNode ;
     private Main(){init();}
@@ -44,20 +46,28 @@ public class Main {
                 JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scroll.setVerticalScrollBarPolicy(
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-
-        try {
-            int ip = Integer.parseInt(AdhocIp);
-            adhocNode = AdhocNodeFactory.getInstance(AdhocPortName,ip);
-        }catch (NumberFormatException e){
-            System.exit(-1);
-        }catch (Exception e){
-            e.printStackTrace();
-            System.exit(-1);
+        while (true){
+            try {
+                AdhocIp = JOptionPane.showInputDialog("输入节点IP:");
+                AdhocPortName = JOptionPane.showInputDialog("输入节点端口名:");
+                if(AdhocIp.trim().equals("")||AdhocPortName.trim().equals(""))
+                    System.exit(-1);
+                int ip = Integer.parseInt(AdhocIp);
+                adhocNode = AdhocNodeFactory.getInstance(AdhocPortName,ip);
+                break;
+            }catch (NumberFormatException e){
+                JOptionPane.showMessageDialog(jPanel, "IP地址必须为正整数", "警告", JOptionPane.WARNING_MESSAGE);
+            }catch (NoSuchElementException nee){
+                JOptionPane.showMessageDialog(jPanel, "端口名不存在", "警告",JOptionPane.WARNING_MESSAGE);
+            }catch (Exception e){
+                e.printStackTrace();
+                System.exit(-1);
+            }
         }
         JLabel ip = new JLabel("IP:"+AdhocIp);
-        JLabel portName = new JLabel("    端口名:"+AdhocPortName);
+        JLabel portName = new JLabel("\t端口名:"+AdhocPortName);
         SystemInfo systemInfo = new SystemInfo();
-        JLabel sysInfo = new JLabel("    平台架构:"+ systemInfo.getOsName()+"-"+systemInfo.getOsArch());
+        JLabel sysInfo = new JLabel("\t平台架构:"+ systemInfo.getOsName()+"-"+systemInfo.getOsArch());
         JPanel adhocInfo = new JPanel();
         adhocInfo.add(ip);
         adhocInfo.add(portName);
@@ -103,10 +113,19 @@ public class Main {
                 display(routeTable);
             }
         });
+
+        clearRouteTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                adhocNode.getRouteTable().clear();
+            }
+        });
+
         jPanel.add(destAdhoc);
         jPanel.add(sendRREQ);
         jPanel.add(sendTxt);
         jPanel.add(queryRoute);
+        jPanel.add(clearRouteTable);
 
         jFrame.add(jPanel, BorderLayout.WEST);
         jFrame.add(adhocInfo,BorderLayout.NORTH);

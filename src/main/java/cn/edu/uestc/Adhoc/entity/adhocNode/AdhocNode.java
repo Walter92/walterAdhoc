@@ -94,7 +94,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         this.ip = ip;
         this.portName = portName;
         this.seqNum = 0;
-        adhocTransfer = new Serial(portName);
+        adhocTransfer =  Serial.getInstance(portName);
 
         //节点对串口进行监听
         adhocTransfer.addReceiveListener(this);
@@ -369,7 +369,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         }
 
         if (nextIP != ip) {
-            logger.debug("【{}】 received data from 【{}】want sent to 【{}】but not interchange node,drops the datagram！", messageData.getSrcIP(), messageData.getDestinationIP());
+            logger.debug("【{}】 received data from 【{}】want sent to 【{}】but not interchange node,drops the datagram！", this.ip,messageData.getSrcIP(), messageData.getDestinationIP());
             return;
         }
 
@@ -392,7 +392,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
      */
     @Override
     public void forwardDATA(MessageData messageData) {
-        logger.debug("节点{}转发节点{}对节点{}的数据...", this.ip, messageData.getSrcIP(), messageData.getDestinationIP());
+        logger.debug("【{}】 forward a datagram that 【{}】 sent to 【{}】...", this.ip, messageData.getSrcIP(), messageData.getDestinationIP());
         try {
             adhocTransfer.send(messageData);
             logger.debug("【{}】 forward datagram successfully！", this.ip);
@@ -410,17 +410,20 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
 
     //将接收到的hello报文的源节点IP加入到队列中
     public void helloHandler(Message message) {
-        int srdIP = message.getSrcIP();
+        int srcIP = message.getSrcIP();
         //保证线程安全
         synchronized (helloMessagesQueue) {
-            helloMessagesQueue.add(srdIP);
+            int size = helloMessagesQueue.size();
+            helloMessagesQueue.add(srcIP);
+            if(size==0)
+                helloMessagesQueue.notify();
         }
     }
 
 
     //路由表维护函数，根据helloIP队列中的IP来维护路由表，在一定时间内没有收到某一节节点的hello报文，则将以该节点为下一中转节点的路由表
     //可用状态设置为不可用，并发送RRER
-    public void maintainRouteTable() {
+    private void maintainRouteTable() {
 
         //路由表维护线程，匿名内部类
         Thread maintainRouteThread = new Thread(new Runnable() {
@@ -431,18 +434,22 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
                 Set<Integer> DestinationSet;
                 Iterator<Integer> it;
                 while (true) {
-                    if (helloMessagesQueue.size() > 0) {
-                        //移除操作，保证线程安全
-                        synchronized (helloMessagesQueue) {
-                            ip1 = helloMessagesQueue.remove();
-                        }
-
-                        if (ip1 != 0) {
-                            DestinationSet = getDestinationIPByNextIP(ip1);
-                            it = DestinationSet.iterator();
-                            while (it.hasNext()) {
-                                routeTable.get(it.next()).setLifeTime(RouteEntry.MAX_LIFETIME);
+                    synchronized (helloMessagesQueue) {
+                        while (helloMessagesQueue.size() == 0) {
+                            //移除操作，保证线程安全
+                            try {
+                                helloMessagesQueue.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
                             }
+                        }
+                        ip1 = helloMessagesQueue.remove();
+                    }
+                    if (ip1 != 0) {
+                        DestinationSet = getDestinationIPByNextIP(ip1);
+                        it = DestinationSet.iterator();
+                        while (it.hasNext()) {
+                            routeTable.get(it.next()).setLifeTime(RouteEntry.MAX_LIFETIME);
                         }
                     }
                 }

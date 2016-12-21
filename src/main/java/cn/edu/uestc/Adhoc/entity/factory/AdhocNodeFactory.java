@@ -51,9 +51,12 @@ public class AdhocNodeFactory {
 //    }
 
     //生产一个节点实例
-    public static AdhocNode getInstance(String portName, int ip) {
+    public static AdhocNode getInstance(String portNameInput, int ip) {
         //获取配置文件中对应key，去掉key的多余空格和转化为小写
-        portName = props.getProperty(portName.trim().toLowerCase());
+        String portName = props.getProperty(portNameInput.trim().toLowerCase());
+        if(portName==null||portName.equals("")){
+            throw new NoSuchElementException("the port name "+portNameInput+" is not exist.");
+        }
         return new AdhocNode(portName, ip);
 //        return null;
     }

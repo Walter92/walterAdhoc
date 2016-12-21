@@ -9,7 +9,7 @@ import java.io.IOException;
 public class AdhocTest {
 
     public static void main(String[] args) throws IOException {
-        AdhocNode adhocNode = AdhocNodeFactory.getInstance("usb4",2);
+        AdhocNode adhocNode = AdhocNodeFactory.getInstance("usb0",2);
         try{
             Thread.sleep(5000);
             adhocNode.sendMessage("hello",1);

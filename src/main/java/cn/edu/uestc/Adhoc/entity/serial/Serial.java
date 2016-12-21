@@ -35,6 +35,7 @@ public class Serial implements AdhocTransfer {
     private static final int BAUD_RATE = 9600;
     //串口的名字
     private String portName;
+    private static volatile Serial instance;
 
     //串口接收到的字节数组，事件机制，当该字段更新时就会触发Adhoc的数据解析方法dataParsing()
     private byte[] message;
@@ -54,7 +55,7 @@ public class Serial implements AdhocTransfer {
     //串口输出流
     private OutputStream os;
 
-    public Serial(String portName) {
+    private Serial(String portName) {
         this.portName = portName;
         //根据处理器的内核数创建一个具有和内核数一样的固定线程数的线程池
         executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -182,5 +183,15 @@ public class Serial implements AdhocTransfer {
     public void receive() {
         Runnable reader = new SerialReadThread(this);
         executorService.submit(reader);
+    }
+
+    public static Serial getInstance(String portName){
+
+        if(instance==null)
+            synchronized (Serial.class) {
+                if(instance==null)
+                    instance = new Serial(portName);
+            }
+        return instance;
     }
 }
