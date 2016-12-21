@@ -23,6 +23,9 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="Maven: com.jamierf:rxtx:1.1" level="project" />
+    <orderEntry type="library" name="Maven: commons-io:commons-io:2.1" level="project" />
+    <orderEntry type="library" name="Maven: org.rxtx:rxtx:2.1.7" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.12" level="project" />
     <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-slf4j-impl:2.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-api:2.0.2" level="project" />
