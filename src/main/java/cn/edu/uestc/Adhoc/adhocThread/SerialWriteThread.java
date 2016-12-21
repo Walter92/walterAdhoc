@@ -35,7 +35,7 @@ public class SerialWriteThread implements Runnable {
             Thread.sleep(1000);
         } catch (IOException e) {
             //System.out.println("发送异常...");
-            logger.warn("sent exception,failed!");
+            logger.warn("串口发送数据异常!");
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();

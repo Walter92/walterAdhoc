@@ -30,9 +30,9 @@ public class Console {
         br = new BufferedReader(new InputStreamReader(System.in));
         while (true){
             try {
-                logger.info("please input port name:");
+                logger.info("请输入端口名字:");
                 portName = br.readLine();
-                logger.info("please input ip:");
+                logger.info("请输入节点IP:");
                 ip = br.readLine();
                 int IP = Integer.parseInt(ip);
                 adhocNode = AdhocNodeFactory.getInstance(portName, IP);
@@ -40,22 +40,22 @@ public class Console {
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (NumberFormatException n) {
-                logger.warn("please input a number!!");
+                logger.warn("请输入一个正整数!!");
             } catch (NoSuchElementException nse) {
-                logger.warn("port name error!");
+                logger.warn("端口名错误!");
             }
         }
         int  selected  = 0;
         outter:while (true){
             try {
-                logger.info("select:\n1.send RREQ;\n2.query route table;\n3.send text message;\n0.quit");
+                logger.info("功能选择:\n1.发送路由请求;\n2.查询路由表;\n3.发送文本;\n0.退出");
                 selected = Integer.parseInt(br.readLine());
                 switch (selected){
                     case 1:sendRREQ();break;
                     case 2:queryRouteTable();break;
                     case 3:sendTextMessage();break;
                     case 0:System.exit(0);
-                    default:logger.warn("select from 0,1,2,3!!");
+                    default:logger.warn("请从{0,1,2,3}中选择!");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -70,13 +70,13 @@ public class Console {
         int destIP = 0 ;
         while (true) {
             try {
-                logger.info("please input destination node IP:");
+                logger.info("请输入目标节点IP:");
                 destIP = Integer.parseInt(br.readLine());
                 adhocNode.sendRREQ(destIP);
                 break;
             } catch (IOException e) {
                 e.printStackTrace();
-                logger.warn("please input a number!");
+                logger.warn("请输入正整数!");
             }
         }
     }
@@ -91,15 +91,15 @@ public class Console {
         String message=null;
         while (true) {
             try {
-                logger.info("please input destination node IP:");
+                logger.info("请输入目标节点IP:");
                 destIP = Integer.parseInt(br.readLine());
-                logger.info("please input message what you want to send:");
+                logger.info("请输入要发送的文本:");
                 message = br.readLine();
                 adhocNode.sendMessage(message, destIP);
                 break;
             } catch (IOException e) {
                 e.printStackTrace();
-                logger.warn("please input a number!");
+                logger.warn("请输入正整数!");
             }
         }
     }

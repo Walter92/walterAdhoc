@@ -82,6 +82,12 @@ public class Serial implements AdhocTransfer {
         return message;
     }
 
+    public String getPortName() {
+        return portName;
+    }
+
+
+
     //注册监听器，如果这里没有使用Vector而是使用ArrayList那么要注意同步问题
     public void addReceiveListener(EventListener listener) {
         repository.addElement(listener);//这步要注意同步问题
@@ -130,7 +136,7 @@ public class Serial implements AdhocTransfer {
                     try {
                         // 打开端口，超时时间为2000
                         serialPort = (SerialPort) portId.open(ADHOC, 2000);
-                        logger.debug("<{}>  serial port was opened successfully.", portName);
+                        logger.debug("<{}> 打开成功!", portName);
                         break;
                     } catch (PortInUseException e) {
                         e.printStackTrace();
@@ -152,14 +158,14 @@ public class Serial implements AdhocTransfer {
 
         try {
             // 设置初始化参数
-            logger.debug("init parameters of serial port(baud rate,data bit,stop bit,parity)...");
+            logger.debug("初始化串口参数(波特率,数据位,停止位,校验位)...");
             serialPort.setSerialPortParams(BAUD_RATE, // 波特率
                     SerialPort.DATABITS_8, // 数据位
                     SerialPort.STOPBITS_1, // 停止位
                     SerialPort.PARITY_NONE);// 校验位
-            logger.debug("init parameters of serial port successfully");
+            logger.debug("初始化串口参数成功!");
         } catch (UnsupportedCommOperationException e) {
-            logger.warn("init parameters of serial port failed!");
+            logger.warn("初始化串口参数失败!");
             throw e;
         }
     }

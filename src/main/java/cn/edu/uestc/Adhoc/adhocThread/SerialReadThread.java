@@ -27,20 +27,18 @@ public class SerialReadThread implements Runnable, SerialPortEventListener {
         bis = new BufferedInputStream(this.is);
         try {
             // 在节点上注册事件监听器
-            logger.debug("init input stream success!!");
-            logger.debug("register listener to serial port...");
+            logger.debug("在端口{}上注册监听器...",serial.getPortName());
             serial.serialPort.addEventListener(this);
         } catch (TooManyListenersException e) {
             e.printStackTrace();
         } catch (Exception e) {
-            logger.warn("init stream failed!!");
+            logger.warn("获取串口输入流异常!");
             e.printStackTrace();
         }
         // 通知数据可用，开始读数据
         serial.serialPort.notifyOnDataAvailable(true);
         readThread = new Thread(this);
         readThread.start();
-        logger.debug("init reader thread done!");
     }
 
     @Override
