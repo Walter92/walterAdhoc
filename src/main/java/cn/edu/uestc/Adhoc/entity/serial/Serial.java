@@ -29,7 +29,7 @@ import java.util.concurrent.Executors;
  */
 public class Serial implements AdhocTransfer {
     private static final Logger logger = LoggerFactory.getLogger(Serial.class);
-    private Vector<EventListener> repository = new Vector<EventListener>();
+    private Vector<EventListener>  repository = new Vector<EventListener> ();
     private SerialPortListener serialPortListener;
     private static final String ADHOC = "Adhoc";
     private static final int BAUD_RATE = 9600;
@@ -130,7 +130,7 @@ public class Serial implements AdhocTransfer {
                     try {
                         // 打开端口，超时时间为2000
                         serialPort = (SerialPort) portId.open(ADHOC, 2000);
-                        logger.debug("【{}】 serial port was opened successfully.", portName);
+                        logger.debug("<{}>  serial port was opened successfully.", portName);
                         break;
                     } catch (PortInUseException e) {
                         e.printStackTrace();
@@ -144,7 +144,7 @@ public class Serial implements AdhocTransfer {
             // 初始化输入输出流，为创建收发线程准备
             is = serialPort.getInputStream();
             os = serialPort.getOutputStream();
-            //logger.debug("初始化端口IO流成功！");
+            //logger.debug("初始化端口IO流成功!");
         } catch (IOException e) {
             e.printStackTrace();
             throw e;
@@ -159,7 +159,7 @@ public class Serial implements AdhocTransfer {
                     SerialPort.PARITY_NONE);// 校验位
             logger.debug("init parameters of serial port successfully");
         } catch (UnsupportedCommOperationException e) {
-            logger.warn("init parameters of serial port failed！");
+            logger.warn("init parameters of serial port failed!");
             throw e;
         }
     }

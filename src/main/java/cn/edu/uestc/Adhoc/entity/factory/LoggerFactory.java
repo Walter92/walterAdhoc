@@ -8,10 +8,10 @@
 ///**
 //* Created by walter on 16-11-3.
 //*/
-//public class LoggerFactory<T> {
+//public class LoggerFactory<T>  {
 //    private LoggerFactory(){}
 //    private static InputStream in = LoggerFactory.class.getClassLoader().getResourceAsStream("log4j2.properties");
-//    public static <T> Logger getLogger(Class<T> clazz){
+//    public static <T>  Logger getLogger(Class<T>  clazz){
 //        PropertyCofi
 //    }
 //}

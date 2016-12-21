@@ -15,7 +15,7 @@ public enum StateFlags {
     /**
      * The entry was valid but has expired but should not be deleted yet.
      * TODO: This state was not clearly called for in the RFC.
-     * <p/>
+     * <p/> 
      * An expired routing table entry SHOULD NOT be expunged before
      * (current_time + DELETE_PERIOD).
      * Maybe this state should really be REPAIRABLE.
@@ -26,7 +26,7 @@ public enum StateFlags {
      * response has been received.
      */
     RREQSENT;
-    static Map<StateFlags,String> map = new HashMap<StateFlags, String>();
+    static Map<StateFlags,String>  map = new HashMap<StateFlags, String> ();
     static {
         map.put(VALID,"有效");
         map.put(INVALID,"无效");

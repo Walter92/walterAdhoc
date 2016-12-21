@@ -27,20 +27,20 @@ public class SerialReadThread implements Runnable, SerialPortEventListener {
         bis = new BufferedInputStream(this.is);
         try {
             // 在节点上注册事件监听器
-            logger.debug("init input stream success！！");
+            logger.debug("init input stream success!!");
             logger.debug("register listener to serial port...");
             serial.serialPort.addEventListener(this);
         } catch (TooManyListenersException e) {
             e.printStackTrace();
         } catch (Exception e) {
-            logger.warn("init stream failed！！");
+            logger.warn("init stream failed!!");
             e.printStackTrace();
         }
         // 通知数据可用，开始读数据
         serial.serialPort.notifyOnDataAvailable(true);
         readThread = new Thread(this);
         readThread.start();
-        logger.debug("init reader thread done！");
+        logger.debug("init reader thread done!");
     }
 
     @Override
@@ -74,7 +74,7 @@ public class SerialReadThread implements Runnable, SerialPortEventListener {
                 int lengthOfBuff = 0;
                 try {
                     int numBytes = -1;
-                    while ((numBytes = is.available()) > 0) {
+                    while ((numBytes = is.available()) >  0) {
                         is.read(buf, 0, numBytes);
                         bytes = Arrays.copyOfRange(buf, 0, numBytes);
                         //将读取到的数据输出到控制台
@@ -95,7 +95,7 @@ public class SerialReadThread implements Runnable, SerialPortEventListener {
                        // logger.debug("收到数据:" + Arrays.toString(bytes));
 //                        System.out.println("Buff::::" + Arrays.toString(buff));
                         if (buff[0] == RouteProtocol.frameHeader[0] && buff[1] == RouteProtocol.frameHeader[1]) {
-                          // logger.debug("帧头校验成功！");
+                          // logger.debug("帧头校验成功!");
                             lengthOfBuff = buff.length;
                             if (buff[lengthOfBuff - 1] == RouteProtocol.frameEnd[1]
                                     && buff[lengthOfBuff - 2] == RouteProtocol.frameEnd[0]) {

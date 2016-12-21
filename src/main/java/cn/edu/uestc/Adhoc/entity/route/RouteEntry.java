@@ -32,7 +32,7 @@ public class RouteEntry {
     private int nextHopIP;
 
 //    //先驱列表，存储了本节点周围的节点地址，其存在的目的主要用于路由维护
-//    private HashSet<Integer> PrecursorIPs = new HashSet<Integer>();
+//    private HashSet<Integer>  PrecursorIPs = new HashSet<Integer> ();
 
     //在这个时间内，该表项有效
     private volatile long lifeTime;
@@ -93,11 +93,11 @@ public class RouteEntry {
         this.nextHopIP = nextHopIP;
     }
 
-//    public HashSet<Integer> getPrecursorIPs() {
+//    public HashSet<Integer>  getPrecursorIPs() {
 //        return PrecursorIPs;
 //    }
 //
-//    public void setPrecursorIPs(HashSet<Integer> precursorIPs) {
+//    public void setPrecursorIPs(HashSet<Integer>  precursorIPs) {
 //        PrecursorIPs = precursorIPs;
 //    }
 

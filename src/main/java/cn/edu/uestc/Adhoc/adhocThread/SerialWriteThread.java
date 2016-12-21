@@ -28,7 +28,7 @@ public class SerialWriteThread implements Runnable {
 //        while (true) {
         try {
             byte[] bytes = message.getBytes();
-           // logger.debug("sent datagram 【{}】", Arrays.toString(bytes));
+           // logger.debug("sent datagram <{}> ", Arrays.toString(bytes));
             bos.write(bytes);
 //                bos.write("hello world...".getBytes());
             bos.flush();

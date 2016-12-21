@@ -70,11 +70,11 @@ public class SystemInfo {
 
     @Override
     public String toString() {
-        return "processor【"
+        return "processor<"
                 + processorCount +
-                "】,memory【" + memorySize +
-                "】,os name【" + osName +
-                "】,os arch【" + osArch.trim()+ "】";
+                "> ,memory<" + memorySize +
+                "> ,os name<" + osName +
+                "> ,os arch<" + osArch.trim()+ "> ";
     }
 
 

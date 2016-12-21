@@ -82,7 +82,7 @@ public class Console {
     }
 
     private void queryRouteTable(){
-        Map<Integer,RouteEntry> map = adhocNode.getRouteTable();
+        Map<Integer,RouteEntry>  map = adhocNode.getRouteTable();
     }
 
 

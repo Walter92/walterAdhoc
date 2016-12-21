@@ -109,7 +109,7 @@ public class Main {
         queryRoute.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                Map<Integer,RouteEntry> routeTable = adhocNode.queryAllRoute();
+                Map<Integer,RouteEntry>  routeTable = adhocNode.queryAllRoute();
                 display(routeTable);
             }
         });
@@ -136,12 +136,12 @@ public class Main {
         jFrame.setVisible(true);
     }
 
-    private void display(Map<Integer,RouteEntry> routeTable){
+    private void display(Map<Integer,RouteEntry>  routeTable){
         JFrame routingTable = new JFrame("本机路由表");
         String[] columnTitle={"目标IP","序列号","跳数","下一跳IP","目标系统信息","状态"};
         int rows = routeTable.size();
         Object[][] cells = new Object[rows][columnTitle.length];
-        Set<Integer> keys =  routeTable.keySet();
+        Set<Integer>  keys =  routeTable.keySet();
         int i=0;
         for(Integer integer:keys){
             RouteEntry entry = routeTable.get(integer);
@@ -236,7 +236,7 @@ public class Main {
             new Thread(new Runnable() {
                 public void run() {
                     while(keepRunning) {
-                        if(byteArrayOS.size() > 0) {
+                        if(byteArrayOS.size() >  0) {
                             byte[] buffer = null;
                             synchronized(byteArrayOS) {
                                 buffer = byteArrayOS.toByteArray();
