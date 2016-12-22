@@ -102,7 +102,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         adhocTransfer.receive();
 
         logger.debug("<{}> 启动读线程，初始化完成，等待数据到达...", this.ip);
-        logger.debug("*************************************");
+        logger.debug("\n*******************************************");
     }
 
     //当串口中数据被更新后执行的方法

@@ -48,7 +48,7 @@ public class Console {
         int  selected  = 0;
         outter:while (true){
             try {
-                logger.info("功能选择:\n1.发送路由请求;\n2.查询路由表;\n3.发送文本;\n0.退出");
+                logger.info("功能选择:\n1.发送路由请求;\n2.查询路由表;\n3.发送文本;\n0.退出;");
                 selected = Integer.parseInt(br.readLine());
                 switch (selected){
                     case 1:sendRREQ();break;

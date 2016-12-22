@@ -30,13 +30,13 @@ public class AdhocNodeFactory {
             if (in != null) {
                 //载入配置文件
                 props.load(in);
-                logger.debug("load config file of port mapping successfully");
+                logger.debug("载入端口映射配置文件成功!");
             } else {
-                logger.warn("not exist config file!");
+                logger.warn("配置文件不存在!");
                 throw new NullPointerException();
             }
         } catch (IOException e) {
-            logger.warn("load config file exception:");
+            logger.warn("载入配置文件异常!");
             e.printStackTrace();
             throw new RuntimeException();
         }
