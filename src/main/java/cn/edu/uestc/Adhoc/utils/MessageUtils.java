@@ -44,4 +44,8 @@ public class MessageUtils {
         }
         return newArray;
     }
+
+    public static String showHex(int num){
+        return "0x"+Integer.toHexString(num);
+    }
 }

@@ -36,7 +36,7 @@ public class SerialReadThread implements Runnable, SerialPortEventListener {
             logger.warn("init stream failed!!");
             e.printStackTrace();
         }
-        // 通知数据可用，开始读数据
+        // 通知数据可用,开始读数据
         serial.serialPort.notifyOnDataAvailable(true);
         readThread = new Thread(this);
         readThread.start();
@@ -81,15 +81,15 @@ public class SerialReadThread implements Runnable, SerialPortEventListener {
 
 
                         /**
-                         * 用ZigBee模块发送数据的时候有一次性接收不全，自动换行的现象发生，为了解决这个问题，在这里
-                         * 添加一个缓冲，当数据接收完整之后再交给下一步程序去处理。通过校验接收到的数据的帧尾，来判断数据是否完整。
+                         * 用ZigBee模块发送数据的时候有一次性接收不全,自动换行的现象发生,为了解决这个问题,在这里
+                         * 添加一个缓冲,当数据接收完整之后再交给下一步程序去处理。通过校验接收到的数据的帧尾,来判断数据是否完整。
                          */
 
                         lengthOfBuff = buff.length;
 
                         //将数组buff扩充容量为本身长度加bytes的长度
                         buff = Arrays.copyOf(buff, bytes.length + lengthOfBuff);
-                        //将数组合并，把bytes的内容追加到buff
+                        //将数组合并,把bytes的内容追加到buff
                         System.arraycopy(bytes, 0, buff, lengthOfBuff, bytes.length);
 
                        // logger.debug("收到数据:" + Arrays.toString(bytes));

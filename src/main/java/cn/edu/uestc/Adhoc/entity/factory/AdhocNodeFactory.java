@@ -8,8 +8,8 @@ import java.io.*;
 import java.util.*;
 
 /**
- * 自组网节点工厂，传入串口名字创建一个自组网节点
- * 读取配置文件，构建windows和linux下串口的节点
+ * 自组网节点工厂,传入串口名字创建一个自组网节点
+ * 读取配置文件,构建windows和linux下串口的节点
  *
  * @author walter
  */
@@ -44,7 +44,7 @@ public class AdhocNodeFactory {
 
 //    //生产一个节点实例
 //    public static AdhocNode getInstance(String portName) {
-//        //获取配置文件中对应key，去掉key的多余空格和转化为小写
+//        //获取配置文件中对应key,去掉key的多余空格和转化为小写
 //        portName = props.getProperty(portName.trim().toLowerCase());
 //        return new AdhocNode(portName);
 ////        return null;
@@ -52,7 +52,7 @@ public class AdhocNodeFactory {
 
     //生产一个节点实例
     public static AdhocNode getInstance(String portNameInput, int ip) {
-        //获取配置文件中对应key，去掉key的多余空格和转化为小写
+        //获取配置文件中对应key,去掉key的多余空格和转化为小写
         String portName = props.getProperty(portNameInput.trim().toLowerCase());
         if(portName==null||portName.equals("")){
             throw new NoSuchElementException("the port name "+portNameInput+" is not exist.");

@@ -4,6 +4,7 @@ import cn.edu.uestc.Adhoc.entity.adhocNode.AdhocNode;
 import cn.edu.uestc.Adhoc.entity.factory.AdhocNodeFactory;
 import cn.edu.uestc.Adhoc.entity.route.RouteEntry;
 import cn.edu.uestc.Adhoc.entity.systemInfo.SystemInfo;
+import cn.edu.uestc.Adhoc.utils.MessageUtils;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -22,13 +23,13 @@ import java.util.Set;
 public class Main {
     String AdhocIp ;
     String AdhocPortName ;
-    JFrame jFrame = new JFrame("自组网节点");
+    JFrame jFrame = new JFrame("Adhoc Node");
     JTextArea conslo = new ConsoleText(40,70);
 
-    JButton sendRREQ = new JButton("发送路由请求");
-    JButton sendTxt = new JButton("发送文本");
-    JButton queryRoute = new JButton("查询本机路由表");
-    JButton clearRouteTable = new JButton("清空路由表");
+    JButton sendRREQ = new JButton("Send RREQ");
+    JButton sendTxt = new JButton("Send Text");
+    JButton queryRoute = new JButton("Query Route Table");
+    JButton clearRouteTable = new JButton("Clean Route Table");
     JPanel jPanel = new JPanel(new GridLayout(10,1));
     AdhocNode adhocNode ;
     private Main(){init();}
@@ -46,34 +47,37 @@ public class Main {
                 JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scroll.setVerticalScrollBarPolicy(
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        int ip =0;
         while (true){
             try {
-                AdhocIp = JOptionPane.showInputDialog("输入节点IP:");
-                AdhocPortName = JOptionPane.showInputDialog("输入节点端口名:");
+                AdhocIp = JOptionPane.showInputDialog("please input IP:");
+                AdhocPortName = JOptionPane.showInputDialog("please input port name:");
                 if(AdhocIp.trim().equals("")||AdhocPortName.trim().equals(""))
                     System.exit(-1);
-                int ip = Integer.parseInt(AdhocIp);
+                ip = Integer.valueOf(AdhocIp, 16);
                 adhocNode = AdhocNodeFactory.getInstance(AdhocPortName,ip);
                 break;
             }catch (NumberFormatException e){
-                JOptionPane.showMessageDialog(jPanel, "IP地址必须为正整数", "警告", JOptionPane.WARNING_MESSAGE);
+                System.out.println("ip must be a number");
+                JOptionPane.showMessageDialog(jPanel, "ip must be a number", "warn", JOptionPane.WARNING_MESSAGE);
             }catch (NoSuchElementException nee){
-                JOptionPane.showMessageDialog(jPanel, "端口名不存在", "警告",JOptionPane.WARNING_MESSAGE);
+                System.out.println("port name is not exist");
+                JOptionPane.showMessageDialog(jPanel, "port name is not exist", "warn",JOptionPane.WARNING_MESSAGE);
             }catch (Exception e){
                 e.printStackTrace();
                 System.exit(-1);
             }
         }
-        JLabel ip = new JLabel("IP:"+AdhocIp);
-        JLabel portName = new JLabel("\t端口名:"+AdhocPortName);
+        JLabel ipLable = new JLabel("IP:"+ MessageUtils.showHex(ip));
+        JLabel portName = new JLabel("\tPortName:"+AdhocPortName);
         SystemInfo systemInfo = new SystemInfo();
-        JLabel sysInfo = new JLabel("\t平台架构:"+ systemInfo.getOsName()+"-"+systemInfo.getOsArch());
+        JLabel sysInfo = new JLabel("\tPlatform Arch:"+ systemInfo.getOsName()+"-"+systemInfo.getOsArch());
         JPanel adhocInfo = new JPanel();
-        adhocInfo.add(ip);
+        adhocInfo.add(ipLable);
         adhocInfo.add(portName);
         adhocInfo.add(sysInfo);
 
-        JLabel destIPLable = new JLabel("节点IP:");
+        JLabel destIPLable = new JLabel("Destinations IP:");
         final JTextField destIp = new JTextField(6);
         JPanel destAdhoc = new JPanel();
         destAdhoc.add(destIPLable);
@@ -95,10 +99,10 @@ public class Main {
         sendTxt.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                String content = JOptionPane.showInputDialog("输入发送内容:");
+                String content = JOptionPane.showInputDialog("input message:");
                 String destinationIP = destIp.getText();
                 try {
-                    int destNodeIP = Integer.parseInt(destinationIP);
+                    int destNodeIP = Integer.valueOf(destinationIP,16);
                     adhocNode.sendMessage(content, destNodeIP);
                 }catch (NumberFormatException nfe){
                     return;
@@ -137,8 +141,8 @@ public class Main {
     }
 
     private void display(Map<Integer,RouteEntry>  routeTable){
-        JFrame routingTable = new JFrame("本机路由表");
-        String[] columnTitle={"目标IP","序列号","跳数","下一跳IP","目标系统信息","状态"};
+        JFrame routingTable = new JFrame("Route Table");
+        String[] columnTitle={"DestIP","Seq","Hop","NextIP","SysInfo","status"};
         int rows = routeTable.size();
         Object[][] cells = new Object[rows][columnTitle.length];
         Set<Integer>  keys =  routeTable.keySet();

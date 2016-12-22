@@ -28,8 +28,8 @@ public enum StateFlags {
     RREQSENT;
     static Map<StateFlags,String>  map = new HashMap<StateFlags, String> ();
     static {
-        map.put(VALID,"有效");
-        map.put(INVALID,"无效");
+        map.put(VALID,"valid");
+        map.put(INVALID,"invalid");
         map.put(REPAIRABLE,"可恢复");
         map.put(EXPIRED,"过期");
     }

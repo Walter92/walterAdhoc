@@ -24,8 +24,8 @@ import java.util.concurrent.Executors;
 
 /**
  * Created by walter on 15-12-18.
- * 串口的事件监听机制，串口为事件源，一旦串口中的message发生改变(事件)，就会出发自组网节点对象调用dataParsing()
- * 通过串口实现传输层接口，为adhoc节点提供传输
+ * 串口的事件监听机制,串口为事件源,一旦串口中的message发生改变(事件),就会出发自组网节点对象调用dataParsing()
+ * 通过串口实现传输层接口,为adhoc节点提供传输
  */
 public class Serial implements AdhocTransfer {
     private static final Logger logger = LoggerFactory.getLogger(Serial.class);
@@ -37,7 +37,7 @@ public class Serial implements AdhocTransfer {
     private String portName;
     private static volatile Serial instance;
 
-    //串口接收到的字节数组，事件机制，当该字段更新时就会触发Adhoc的数据解析方法dataParsing()
+    //串口接收到的字节数组,事件机制,当该字段更新时就会触发Adhoc的数据解析方法dataParsing()
     private byte[] message;
 
     //串口的线程池
@@ -82,7 +82,7 @@ public class Serial implements AdhocTransfer {
         return message;
     }
 
-    //注册监听器，如果这里没有使用Vector而是使用ArrayList那么要注意同步问题
+    //注册监听器,如果这里没有使用Vector而是使用ArrayList那么要注意同步问题
     public void addReceiveListener(EventListener listener) {
         repository.addElement(listener);//这步要注意同步问题
     }
@@ -96,12 +96,12 @@ public class Serial implements AdhocTransfer {
         }
     }
 
-    //删除监听器，如果这里没有使用Vector而是使用ArrayList那么要注意同步问题
+    //删除监听器,如果这里没有使用Vector而是使用ArrayList那么要注意同步问题
     public void removeDemoListener(SerialPortListener serialPortListener) {
         repository.remove(serialPortListener);//这步要注意同步问题
     }
 
-    //更新serial对象的message，该动作将会引发事件
+    //更新serial对象的message,该动作将会引发事件
     public void setMessage(byte[] message) {
         boolean bool = false;
         if (message == null && this.message != null)
@@ -122,13 +122,13 @@ public class Serial implements AdhocTransfer {
         portList = CommPortIdentifier.getPortIdentifiers();
 
         while (portList.hasMoreElements()) {
-            // 判断端口的类型以及名字，打开需要打开的端口
+            // 判断端口的类型以及名字,打开需要打开的端口
             portId = (CommPortIdentifier) portList.nextElement();
             System.out.println(portId.getName());
             if (portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
                 if (portName.equals(portId.getName())) {
                     try {
-                        // 打开端口，超时时间为2000
+                        // 打开端口,超时时间为2000
                         serialPort = (SerialPort) portId.open(ADHOC, 2000);
                         logger.debug("<{}>  serial port was opened successfully.", portName);
                         break;
@@ -141,7 +141,7 @@ public class Serial implements AdhocTransfer {
         }
 
         try {
-            // 初始化输入输出流，为创建收发线程准备
+            // 初始化输入输出流,为创建收发线程准备
             is = serialPort.getInputStream();
             os = serialPort.getOutputStream();
             //logger.debug("初始化端口IO流成功!");
