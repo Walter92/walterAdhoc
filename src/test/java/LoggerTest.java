@@ -9,6 +9,11 @@ public class LoggerTest {
     private static Logger logger = LoggerFactory.getLogger(LoggerTest.class);
     @Test
     public void testLog(){
-        logger.debug("test logg is {}",new Object());
+      //  logger.debug("test logg is {}",new Object());
+        Integer a = Integer.valueOf("21",16);
+        System.out.println(a);
     }
+
+
+
 }

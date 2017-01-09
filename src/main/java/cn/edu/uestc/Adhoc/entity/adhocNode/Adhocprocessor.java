@@ -3,6 +3,7 @@ package cn.edu.uestc.Adhoc.entity.adhocNode;
 import cn.edu.uestc.Adhoc.entity.message.MessageData;
 import cn.edu.uestc.Adhoc.entity.message.MessageRREP;
 import cn.edu.uestc.Adhoc.entity.message.MessageRREQ;
+import cn.edu.uestc.Adhoc.entity.message.MessageRRER;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +60,16 @@ public class Adhocprocessor implements IAdhocNode {
 
     @Override
     public void forwardDATA(MessageData messageData) {
+
+    }
+
+    @Override
+    public void sendRRER(MessageRRER messageRRER) {
+
+    }
+
+    @Override
+    public void receiveRRER(MessageRRER messageRRER) {
 
     }
 }

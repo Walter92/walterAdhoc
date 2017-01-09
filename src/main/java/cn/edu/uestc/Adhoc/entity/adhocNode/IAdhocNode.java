@@ -3,6 +3,7 @@ package cn.edu.uestc.Adhoc.entity.adhocNode;
 import cn.edu.uestc.Adhoc.entity.message.MessageData;
 import cn.edu.uestc.Adhoc.entity.message.MessageRREP;
 import cn.edu.uestc.Adhoc.entity.message.MessageRREQ;
+import cn.edu.uestc.Adhoc.entity.message.MessageRRER;
 import cn.edu.uestc.Adhoc.entity.route.RouteEntry;
 
 public interface IAdhocNode {
@@ -42,4 +43,8 @@ public interface IAdhocNode {
 
     //查询路由表,若存在目标节点的有效路由则返回
     //RouteEntry queryRouteTable(int destIP);
+
+    void sendRRER(MessageRRER messageRRER);
+
+    void receiveRRER(MessageRRER messageRRER);
 }

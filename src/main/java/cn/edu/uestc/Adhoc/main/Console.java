@@ -34,7 +34,7 @@ public class Console {
                 portName = br.readLine();
                 logger.info("please input ip:");
                 ip = br.readLine();
-                int IP = Integer.parseInt(ip);
+                int IP = Integer.valueOf(ip,16);
                 adhocNode = AdhocNodeFactory.getInstance(portName, IP);
                 break;
             } catch (IOException e) {
@@ -71,7 +71,7 @@ public class Console {
         while (true) {
             try {
                 logger.info("please input destination node IP:");
-                destIP = Integer.parseInt(br.readLine());
+                destIP = Integer.valueOf(br.readLine(),16);
                 adhocNode.sendRREQ(destIP);
                 break;
             } catch (IOException e) {
@@ -92,7 +92,7 @@ public class Console {
         while (true) {
             try {
                 logger.info("please input destination node IP:");
-                destIP = Integer.parseInt(br.readLine());
+                destIP = Integer.valueOf(br.readLine(),16);
                 logger.info("please input message what you want to send:");
                 message = br.readLine();
                 adhocNode.sendMessage(message, destIP);

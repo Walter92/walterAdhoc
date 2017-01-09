@@ -46,6 +46,6 @@ public class MessageUtils {
     }
 
     public static String showHex(int num){
-        return "0x"+Integer.toHexString(num);
+        return "0x"+Integer.toHexString(num).toUpperCase();
     }
 }

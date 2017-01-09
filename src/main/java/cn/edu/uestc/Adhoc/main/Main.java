@@ -68,7 +68,7 @@ public class Main {
                 System.exit(-1);
             }
         }
-        JLabel ipLable = new JLabel("IP:"+ MessageUtils.showHex(ip));
+        JLabel ipLable = new JLabel("IP:0x"+ AdhocIp);
         JLabel portName = new JLabel("\tPortName:"+AdhocPortName);
         SystemInfo systemInfo = new SystemInfo();
         JLabel sysInfo = new JLabel("\tPlatform Arch:"+ systemInfo.getOsName()+"-"+systemInfo.getOsArch());
@@ -88,7 +88,7 @@ public class Main {
             public void mouseClicked(MouseEvent e) {
                 String destinationIP = destIp.getText();
                 try {
-                    int destNodeIP = Integer.parseInt(destinationIP);
+                    int destNodeIP = Integer.valueOf(destinationIP,16);
                     adhocNode.sendRREQ(destNodeIP);
                 }catch (NumberFormatException nfe){
                     return;

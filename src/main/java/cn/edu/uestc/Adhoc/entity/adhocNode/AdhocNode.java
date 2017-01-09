@@ -328,7 +328,10 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
             //交给处理hello报文的处理函数
             MessageHello message = MessageHello.recoverMsg(bytes);
             helloHandler(message);
-        } else {
+        } else if(type == RouteProtocol.RRER){
+            MessageRRER message = MessageRRER.recoverMsg(bytes);
+            receiveRRER(message);
+        }else {
             logger.warn("Invalid data format!");
         }
     }
@@ -400,6 +403,29 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         } catch (IOException e) {
             logger.warn("<{}> forward datagram failed!", MessageUtils.showHex(this.ip));
         }
+    }
+
+    @Override
+    public void sendRRER(MessageRRER messageRRER) {
+        logger.debug("<{}> prepare to send RRER, cant link to <{}>.",this.getIp(),messageRRER.getDestinationIP());
+        try {
+            adhocTransfer.send(messageRRER);
+            logger.debug("<{}> send RRER successfully!", MessageUtils.showHex(this.ip));
+        }catch (IOException e){
+            logger.warn("<{}> send RRER failed!", MessageUtils.showHex(this.ip));
+        }
+    }
+
+    @Override
+    public void receiveRRER(MessageRRER messageRRER) {
+        logger.debug("<{}> receive RRER from <{}>",this.ip,messageRRER.getSrcIP());
+        RouteEntry routeEntry = routeTable.get(messageRRER.getDestinationIP());
+        routeEntry.setState(StateFlags.INVALID);
+        MessageRRER message = new MessageRRER();
+        message.setSrcIP(this.getIp());
+        message.setDestinationIP(messageRRER.getDestinationIP());
+        sendRRER(message);
+
     }
 
     public RouteEntry queryRouteTable(int destinationIP) {
