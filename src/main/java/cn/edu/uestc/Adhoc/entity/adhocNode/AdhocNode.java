@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 系统信息的记录暂时还没有得到利用。
@@ -38,6 +40,8 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     //自主网节点使用的串口对象,同时也是要监听的时间源
     private AdhocTransfer adhocTransfer;
 
+    //路由维护，维护hello报文队列
+    private ReentrantLock lock = new ReentrantLock(true);
     // 节点IP地址
     private final int ip;
 
@@ -180,11 +184,13 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         //如果收到的信息里面,请求的序列号的键存在,并且小于等于本机所存,则抛弃
         RouteEntry entry = routeTable.get(key);
         if (entry!=null && entry.getSeqNum() >= messageRREQ.getSeqNum()) {
-            logger.warn("<{}> drops the old seq <{}> of <{}>  RREQ, last seq is <{}> ,the ",MessageUtils.showHex(ip),messageRREQ.getSeqNum(),MessageUtils.showHex(messageRREQ.getSrcIP()), entry.getSeqNum());
+            logger.warn("<{}> drops the old seq <{}> of <{}>  RREQ, last seq is <{}> ",MessageUtils.showHex(ip),messageRREQ.getSeqNum(),MessageUtils.showHex(messageRREQ.getSrcIP()), entry.getSeqNum());
             return;
         } else {
+            int hop = messageRREQ.getHop();
+            hop++;
             RouteEntry routeEntry = new RouteEntry(key, messageRREQ.getRouteIP(),
-                    messageRREQ.getSeqNum(), StateFlags.VALID, messageRREQ.getHop()+1, 0, messageRREQ.getSystemInfo());
+                    messageRREQ.getSeqNum(), StateFlags.VALID, hop, 0, messageRREQ.getSystemInfo(),System.currentTimeMillis());
             logger.debug("<{}> adds new route entry {}",MessageUtils.showHex(this.ip),routeEntry);
             //更新自己的路由表,路由表项的信息为该信息的源节点为目的地址,去往该目的地址的下一跳节点即为转发该信息的节点
             //RouteEntry(String destinationIP, int seqNum, StateFlags state, int hopCount, String nextHopIP, int lifetime)
@@ -206,9 +212,9 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         RouteEntry routeEntry = queryRouteTable(messageRREQ.getDestinationIP());
         //如果本机有到要寻找的目的节点的路由,则回复路由请求
         if (routeEntry != null) {
-            logger.debug("<{}>  has routing to<{}> " +
-                    messageRREQ.getDestinationIP());
-            MessageRREP messageRREP = new MessageRREP(ip, 0, seqNum++, routeEntry.getSystemInfo());
+            logger.debug("<{}>  has routing to<{}> " ,MessageUtils.showHex(this.ip),
+                    MessageUtils.showHex(messageRREQ.getDestinationIP()));
+            MessageRREP messageRREP = new MessageRREP(ip, routeEntry.getHopCount(), seqNum++, routeEntry.getSystemInfo());
             messageRREP.setDestinationIP(messageRREQ.getSrcIP());
             messageRREP.setSrcIP(messageRREQ.getDestinationIP());
             messageRREP.setRouteIP(this.ip);
@@ -269,8 +275,10 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
             logger.warn("<{}> drops the old seq <{}>...", MessageUtils.showHex(this.ip),messageRREP.getSeqNum());
             return;
         } else {
+            int hop = messageRREP.getHop();
+            hop++;
             RouteEntry routeEntry = new RouteEntry(key, messageRREP.getRouteIP()
-                    , messageRREP.getSeqNum(), StateFlags.VALID, messageRREP.getHop()+1, 0, messageRREP.getSystemInfo());
+                    , messageRREP.getSeqNum(), StateFlags.VALID, hop, 0, messageRREP.getSystemInfo(),System.currentTimeMillis());
             logger.debug("add new route entry {}",routeEntry);
             routeTable.put(key, routeEntry);
         }
@@ -351,6 +359,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
             messageData.setSrcIP(ip);
             messageData.setNextIP(routeEntry.getNextHopIP());
             try {
+                logger.debug("<{}> send message to <{}>,message : <{}>",MessageUtils.showHex(this.ip),MessageUtils.showHex(destinationIP),messageData);
                 adhocTransfer.send(messageData);
                 logger.debug("<{}> sent datagram to <{}> successfully!", MessageUtils.showHex(this.ip), MessageUtils.showHex(destinationIP));
             } catch (IOException e) {
@@ -363,6 +372,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
 
     @Override
     public void receiveDATA(MessageData messageData) {
+        logger.debug("<{}> received message data from <{}> to <{}>,Message meta:<{}>",MessageUtils.showHex(this.ip),MessageUtils.showHex(messageData.getSrcIP()),MessageUtils.showHex(messageData.getDestinationIP()),messageData);
         //收到数据类型的信息时不需要检查序列号
         int nextIP = messageData.getNextIP();
 
@@ -373,7 +383,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         }
 
         if (nextIP != ip) {
-            logger.debug("<{}> received data from <{}> want sent to <{}> but not interchange node,drops the datagram!", MessageUtils.showHex(this.ip),MessageUtils.showHex(messageData.getSrcIP()), MessageUtils.showHex(messageData.getDestinationIP()));
+            logger.debug("<{}> received data from <{}> want sent to <{}> but next ip is <{}>,drops the datagram!", MessageUtils.showHex(this.ip),MessageUtils.showHex(messageData.getSrcIP()), MessageUtils.showHex(messageData.getDestinationIP()),MessageUtils.showHex(nextIP));
             return;
         }
 
@@ -421,11 +431,8 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         logger.debug("<{}> receive RRER from <{}>",this.ip,messageRRER.getSrcIP());
         RouteEntry routeEntry = routeTable.get(messageRRER.getDestinationIP());
         routeEntry.setState(StateFlags.INVALID);
-        MessageRRER message = new MessageRRER();
-        message.setSrcIP(this.getIp());
-        message.setDestinationIP(messageRRER.getDestinationIP());
+        MessageRRER message = new MessageRRER(this.getIp(),messageRRER.getDestinationIP());
         sendRRER(message);
-
     }
 
     public RouteEntry queryRouteTable(int destinationIP) {
@@ -439,12 +446,14 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     public void helloHandler(Message message) {
         int srcIP = message.getSrcIP();
         //保证线程安全
-        synchronized (helloMessagesQueue) {
+        lock.lock();
+        try {
             int size = helloMessagesQueue.size();
             helloMessagesQueue.add(srcIP);
-            if(size==0)
-                helloMessagesQueue.notify();
+        }finally {
+            lock.unlock();
         }
+
     }
 
 
@@ -458,25 +467,36 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
             @Override
             public void run() {
                 int ip1 = 0;
+                //根据目标地址获取
                 Set<Integer>  DestinationSet;
                 Iterator<Integer>  it;
+                boolean locked = false;
                 while (true) {
-                    synchronized (helloMessagesQueue) {
-                        while (helloMessagesQueue.size() == 0) {
-                            //移除操作,保证线程安全
-                            try {
-                                helloMessagesQueue.wait();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
+                    try {
+                        locked = lock.tryLock(1, TimeUnit.SECONDS);
+                        if(locked) {
+                            if (helloMessagesQueue.size() > 0) {
+                                ip1 = helloMessagesQueue.remove();
                             }
                         }
-                        ip1 = helloMessagesQueue.remove();
+                    }catch (InterruptedException e){
+
+                    }finally {
+                        if(locked)
+                            lock.unlock();
                     }
                     if (ip1 != 0) {
                         DestinationSet = getDestinationIPByNextIP(ip1);
                         it = DestinationSet.iterator();
                         while (it.hasNext()) {
-                            routeTable.get(it.next()).setLifeTime(RouteEntry.MAX_LIFETIME);
+                            routeTable.get(it.next()).setLastModifyTime(System.currentTimeMillis());
+                        }
+                    }
+                    for(Integer integer : routeTable.keySet()){
+                        RouteEntry routeEntry = routeTable.get(integer);
+                        if((System.currentTimeMillis()-routeEntry.getLastModifyTime())>routeEntry.getLifeTime()){
+                            routeEntry.setState(StateFlags.INVALID);
+                            sendRRER(new MessageRRER(getIp(),routeEntry.getDestIP()));
                         }
                     }
                 }
@@ -484,7 +504,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         });
 
         //将维护线程设置为守护线程
-        maintainRouteThread.setDaemon(true);
+       // maintainRouteThread.setDaemon(true);
 
         maintainRouteThread.start();
 

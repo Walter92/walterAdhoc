@@ -134,7 +134,7 @@ public class MessageRREP extends Message {
     @Override
     public String toString() {
         return "MessageRREP{" +
-                "routeIP=" + routeIP +
+                "routeIP=" + MessageUtils.showHex(routeIP) +
                 ", systemInfo=" + systemInfo +
                 ", hop=" + hop +
                 ", seqNum=" + seqNum +

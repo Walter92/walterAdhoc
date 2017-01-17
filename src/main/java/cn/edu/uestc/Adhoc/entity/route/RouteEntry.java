@@ -1,6 +1,10 @@
 package cn.edu.uestc.Adhoc.entity.route;
 
 import cn.edu.uestc.Adhoc.entity.systemInfo.SystemInfo;
+import cn.edu.uestc.Adhoc.utils.MessageUtils;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 /**
@@ -38,9 +42,19 @@ public class RouteEntry {
     private volatile long lifeTime;
 
     //目标节点的系统信息
-    SystemInfo systemInfo;
+    private SystemInfo systemInfo;
 
-    public RouteEntry(int destIP, int nextHopIP, int seqNum, StateFlags state, int hopCount, long lifeTime, SystemInfo systemInfo) {
+    public long getLastModifyTime() {
+        return lastModifyTime;
+    }
+
+    public void setLastModifyTime(long lastModifyTime) {
+        this.lastModifyTime = lastModifyTime;
+    }
+
+    private long lastModifyTime;
+
+    public RouteEntry(int destIP, int nextHopIP, int seqNum, StateFlags state, int hopCount, long lifeTime, SystemInfo systemInfo,long lastModifyTime) {
         this.destIP = destIP;
         this.seqNum = seqNum;
         this.state = state;
@@ -48,11 +62,14 @@ public class RouteEntry {
         this.nextHopIP = nextHopIP;
         this.lifeTime = lifeTime;
         this.systemInfo = systemInfo;
-
+        this.lastModifyTime = lastModifyTime;
         // 方案一：在构造后就启动一个单独的线程来维护生存时间，
         // 直接缺点就是每一个表项都会开启一个线程，如果表项很多的话会创建很多线程，占用大量系统资源(也许可以这么干，也占不了多少资源)
     }
 
+    public RouteEntry(int destIP, int nextHopIP, int seqNum, StateFlags state, int hopCount,  SystemInfo systemInfo,long lastModifyTime) {
+        this(destIP,nextHopIP,seqNum,state,hopCount,MAX_LIFETIME,systemInfo,lastModifyTime);
+    }
     public int getDestIP() {
         return destIP;
     }
@@ -120,16 +137,20 @@ public class RouteEntry {
     @Override
     public String toString() {
         return "RouteEntry{" +
-                "destinationIP=" + destIP +
+                "destinationIP=" + MessageUtils.showHex(destIP) +
                 ", seqNum=" + seqNum +
                 ", state=" + state +
                 ", hopCount=" + hopCount +
-                ", nextHopIP=" + nextHopIP +
+                ", nextHopIP=" + MessageUtils.showHex(nextHopIP) +
                 ", lifeTime=" + lifeTime +
                 ", systemInfo=" + systemInfo +
+                ", lastModifyTime=" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(lastModifyTime)) +
                 '}';
     }
 
+    public String printTable(){
+        return "|"+MessageUtils.showHex(destIP)+"  |"+seqNum+"     |"+state+"|"+hopCount+"       |"+MessageUtils.showHex(nextHopIP)+"     |"+lifeTime+"       |"+systemInfo+"|"+ new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(lastModifyTime))+"|";
+    }
     //根据生存时间，表项失效设置
     public void setInvalid() {
         while (true) {

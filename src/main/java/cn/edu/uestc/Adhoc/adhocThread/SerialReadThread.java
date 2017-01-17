@@ -93,7 +93,7 @@ public class SerialReadThread implements Runnable, SerialPortEventListener {
                         System.arraycopy(bytes, 0, buff, lengthOfBuff, bytes.length);
 
                        // logger.debug("收到数据:" + Arrays.toString(bytes));
-//                        System.out.println("Buff::::" + Arrays.toString(buff));
+                        System.out.println("Buff::::" + Arrays.toString(buff));
                         if (buff[0] == RouteProtocol.frameHeader[0] && buff[1] == RouteProtocol.frameHeader[1]) {
                           // logger.debug("帧头校验成功!");
                             lengthOfBuff = buff.length;
@@ -106,8 +106,9 @@ public class SerialReadThread implements Runnable, SerialPortEventListener {
                                 buff = new byte[0];
                             }
                         }
-
-
+//                        else if(buff.length>50){
+//                            buf=new byte[0];
+//                        }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

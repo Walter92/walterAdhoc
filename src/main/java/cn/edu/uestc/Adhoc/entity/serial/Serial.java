@@ -58,7 +58,7 @@ public class Serial implements AdhocTransfer {
     private Serial(String portName) {
         this.portName = portName;
         //根据处理器的内核数创建一个具有和内核数一样的固定线程数的线程池
-        executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()<<1);
         try {
             init();
         } catch (UnsupportedCommOperationException uce) {

@@ -10,6 +10,12 @@ import cn.edu.uestc.Adhoc.utils.MessageUtils;
 public class MessageRRER extends Message {
 
     private static final byte DEFAULT_BYTE = 10;
+
+
+    public MessageRRER(Integer srcIP,Integer destIP){
+        this.srcIP = srcIP;
+        this.destinationIP = destIP;
+    }
     @Override
     public byte[] getBytes() {
         byte[] srcByte = MessageUtils.IntToBytes(getSrcIP());
@@ -40,9 +46,7 @@ public class MessageRRER extends Message {
         int srcIP = MessageUtils.BytesToInt(new byte[]{bytes[4], bytes[5]});
         int destinationIP = MessageUtils.BytesToInt(new byte[]{bytes[6], bytes[7]});
 
-        MessageRRER message = new MessageRRER();
-        message.setSrcIP(srcIP);
-        message.setDestinationIP(destinationIP);
+        MessageRRER message = new MessageRRER(srcIP,destinationIP);
 
         return message;
     }

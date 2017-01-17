@@ -3,6 +3,7 @@ package cn.edu.uestc.Adhoc.main;
 import cn.edu.uestc.Adhoc.entity.adhocNode.AdhocNode;
 import cn.edu.uestc.Adhoc.entity.factory.AdhocNodeFactory;
 import cn.edu.uestc.Adhoc.entity.route.RouteEntry;
+import cn.edu.uestc.Adhoc.utils.MessageUtils;
 import org.apache.logging.log4j.core.appender.routing.Route;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * Created by walter on 16-12-20.
@@ -34,7 +36,7 @@ public class Console {
                 portName = br.readLine();
                 logger.info("please input ip:");
                 ip = br.readLine();
-                int IP = Integer.valueOf(ip,16);
+                int IP = Integer.valueOf(ip, 16);
                 adhocNode = AdhocNodeFactory.getInstance(portName, IP);
                 break;
             } catch (IOException e) {
@@ -45,11 +47,11 @@ public class Console {
                 logger.warn("port name error!");
             }
         }
-        int  selected  = 0;
-        outter:while (true){
+
+        while (true){
             try {
                 logger.info("select:\n1.send RREQ;\n2.query route table;\n3.send text message;\n0.quit");
-                selected = Integer.parseInt(br.readLine());
+                int selected = Integer.parseInt(br.readLine());
                 switch (selected){
                     case 1:sendRREQ();break;
                     case 2:queryRouteTable();break;
@@ -57,9 +59,9 @@ public class Console {
                     case 0:System.exit(0);
                     default:logger.warn("select from 0,1,2,3!!");
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
-                continue outter;
+
             }
 
         }
@@ -83,6 +85,12 @@ public class Console {
 
     private void queryRouteTable(){
         Map<Integer,RouteEntry>  map = adhocNode.getRouteTable();
+        Set<Map.Entry<Integer,RouteEntry>>  entrySet = map.entrySet();
+        System.out.println("----------------------------------------------------------");
+        System.out.println("|destIP|seqNum|state|hopCount|nextHopIP|lifeTime|systemInfo\t\t\t\t\t\t\t\t\t\t\t\t  |lastModifyTime");
+        for(Map.Entry<Integer,RouteEntry> entryEntry : entrySet){
+            System.out.println(entryEntry.getValue().printTable());
+        }
     }
 
 

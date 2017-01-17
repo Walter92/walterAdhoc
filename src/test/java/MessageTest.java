@@ -8,9 +8,11 @@ import java.util.Arrays;
 public class MessageTest {
     public static void main(String[] args){
         MessageData messageData = new MessageData(2,"hello".getBytes());
+        messageData.setNextIP(43);
+        System.out.println(messageData);
         byte[] bytes = messageData.getBytes();
         System.out.println(Arrays.toString(bytes));
         MessageData messageData1 = MessageData.recoverMsg(bytes);
-        System.out.println(new String(messageData1.getContent()));
+        System.out.println(messageData1);
     }
 }

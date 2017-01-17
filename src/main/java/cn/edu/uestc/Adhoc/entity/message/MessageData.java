@@ -82,7 +82,7 @@ public class MessageData extends Message {
     @Override
     public String toString() {
         return "MessageData{" +
-                "nextIP=" + nextIP +
+                "nextIP=" + MessageUtils.showHex(nextIP) +
                 ", dataLen=" + dataLen +
                 ", content=" + new String(content) +
                 '}';
@@ -97,10 +97,10 @@ public class MessageData extends Message {
         byte dataLength = bytes[10];
         byte[] information = Arrays.copyOfRange(bytes, 11, bytes.length-2);
 
-        MessageData message = new MessageData(nextIP, information);
+        MessageData message = new MessageData(destinationIP, information);
         message.setSrcIP(srcIP);
         message.setDataLen(dataLength);
-        message.setDestinationIP(destinationIP);
+        message.setNextIP(nextIP);
         message.setType(RouteProtocol.DATA);
 
         return message;
