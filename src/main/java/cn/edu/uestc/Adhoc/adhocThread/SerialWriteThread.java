@@ -32,14 +32,15 @@ public class SerialWriteThread implements Runnable {
             bos.write(bytes);
 //                bos.write("hello world...".getBytes());
             bos.flush();
-            Thread.sleep(1000);
+           // Thread.sleep(1000);
         } catch (IOException e) {
             //System.out.println("发送异常...");
             logger.warn("sent exception,failed!");
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
+// catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 //        }
     }
 }

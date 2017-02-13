@@ -24,6 +24,7 @@ public class MessageData extends Message {
         this.destinationIP = destinationIP;
         this.dataLen = content.length;
         this.content = content;
+        this.type = RouteProtocol.DATA;
     }
 
     public int getNextIP() {
@@ -61,7 +62,7 @@ public class MessageData extends Message {
         messageByte[0] = RouteProtocol.frameHeader[0];
         messageByte[1] = RouteProtocol.frameHeader[1];//帧头,0,1
         messageByte[2] = len;
-        messageByte[3] = RouteProtocol.DATA;//数据类型,3
+        messageByte[3] = (byte)this.type;//数据类型,3
 
         messageByte[4] = srcByte[0];
         messageByte[5] = srcByte[1];//源节点,3,4

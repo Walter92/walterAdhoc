@@ -12,10 +12,8 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.*;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by walter on 16-11-21.
@@ -145,17 +143,18 @@ public class Main {
 
     private void display(Map<Integer,RouteEntry>  routeTable){
         JFrame routingTable = new JFrame("Route Table");
-        String[] columnTitle={"DestIP","Seq","Hop","NextIP","SysInfo","status"};
+        String[] columnTitle={"destIP","nextIP","seqNum","hopCount","SysInfo","lifeTime","lastModifyTime","status"};
         int rows = routeTable.size();
         Object[][] cells = new Object[rows][columnTitle.length];
         Set<Integer>  keys =  routeTable.keySet();
         int i=0;
         for(Integer integer:keys){
             RouteEntry entry = routeTable.get(integer);
-            cells[i][0]=entry.getDestIP();
-            cells[i][1]=entry.getSeqNum();
-            cells[i][2]=entry.getHopCount();
-            cells[i][3]=entry.getNextHopIP();
+            cells[i][0]=MessageUtils.showHex(entry.getDestIP());
+            cells[i][1]=MessageUtils.showHex(entry.getNextHopIP());
+            cells[i][2]=entry.getSeqNum();
+            cells[i][3]=entry.getHopCount();
+
 //            JButton showSysInfo = new JButton("查看");
 //            showSysInfo.addMouseListener(new MouseAdapter() {
 //                @Override
@@ -164,7 +163,9 @@ public class Main {
 //                }
 //            });
             cells[i][4]=entry.getSystemInfo();
-            cells[i][5]=entry.getState().getShow();
+            cells[i][5]=entry.getLifeTime();
+            cells[i][6]=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(entry.getLastModifyTime()));
+            cells[i][7]=entry.getState().getShow();
             ++i;
         }
         ExtTable extTable = new ExtTable(columnTitle,cells);

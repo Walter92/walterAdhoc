@@ -39,7 +39,7 @@ public class RouteEntry {
 //    private HashSet<Integer>  PrecursorIPs = new HashSet<Integer> ();
 
     //在这个时间内，该表项有效
-    private volatile long lifeTime;
+    private  long lifeTime;
 
     //目标节点的系统信息
     private SystemInfo systemInfo;
@@ -60,7 +60,7 @@ public class RouteEntry {
         this.state = state;
         this.hopCount = hopCount;
         this.nextHopIP = nextHopIP;
-        this.lifeTime = lifeTime;
+        this.lifeTime = MAX_LIFETIME;
         this.systemInfo = systemInfo;
         this.lastModifyTime = lastModifyTime;
         // 方案一：在构造后就启动一个单独的线程来维护生存时间，

@@ -121,7 +121,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
 
     //通过计算发送大量数据所消耗的时间来对该节点的性能进行评级
     private byte evaluateLevel(){
-        int count=10000;
+        int count=10;
         long start = System.currentTimeMillis();
         Message testMessage = new MessageData(0,"testLevel".getBytes());
         testMessage.setType(RouteProtocol.TEST);
