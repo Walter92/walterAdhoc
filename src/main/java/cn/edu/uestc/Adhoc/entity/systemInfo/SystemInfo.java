@@ -15,8 +15,10 @@ public class SystemInfo {
     private String osName;
     private String osArch;
     private byte[] sysInfoByte;
+    private byte performanceLevel;
 
-    public SystemInfo() {
+    public SystemInfo(byte performanceLevel) {
+        this.performanceLevel = performanceLevel;
         Runtime rt = Runtime.getRuntime();
         // 获取主机空闲内存
         long free = rt.freeMemory();
@@ -28,9 +30,10 @@ public class SystemInfo {
         initSysInfoBytes();
     }
 
-    public SystemInfo(int processorCount, int memorySize) {
+    public SystemInfo(int processorCount, int memorySize,byte performanceLevel) {
         this.processorCount = processorCount;
         this.memorySize = memorySize;
+        this.performanceLevel = performanceLevel;
     }
 
     private void initSysInfoBytes(){
@@ -39,9 +42,10 @@ public class SystemInfo {
         sysInfoByte[0] = (byte) processorCount;
         sysInfoByte[1] = MessageUtils.IntToBytes(memorySize)[0];
         sysInfoByte[2] = MessageUtils.IntToBytes(memorySize)[1];
+        sysInfoByte[3] = performanceLevel;
         byte[] osNameAndArch = (osName + UNDER_LINE + osArch).getBytes();
         for(int i=0;i<osNameAndArch.length;i++){
-            sysInfoByte[3+i]=osNameAndArch[i];
+            sysInfoByte[4+i]=osNameAndArch[i];
         }
     }
 
@@ -50,8 +54,8 @@ public class SystemInfo {
     }
 
     public static SystemInfo recoverSysInfo(byte[] bytes) {
-        SystemInfo systemInfo = new SystemInfo(bytes[0], MessageUtils.BytesToInt(new byte[]{bytes[1], bytes[2]}));
-        String[] osNameAndArch = new String(bytes, 3, bytes.length - 3).split(UNDER_LINE);
+        SystemInfo systemInfo = new SystemInfo(bytes[0], MessageUtils.BytesToInt(new byte[]{bytes[1], bytes[2]}),bytes[3]);
+        String[] osNameAndArch = new String(bytes, 4, bytes.length - 4).split(UNDER_LINE);
         systemInfo.osName=osNameAndArch[0];
         systemInfo.osArch=osNameAndArch[1];
         systemInfo.initSysInfoBytes();
@@ -67,11 +71,14 @@ public class SystemInfo {
         return osName;
     }
 
+    public byte getPerformanceLevel() {
+        return performanceLevel;
+    }
 
     @Override
     public String toString() {
-        return "processor<"
-                + processorCount +
+        return "level<" + performanceLevel +
+                "> ,processor<" + processorCount +
                 "> ,memory<" + memorySize +
                 "> ,os name<" + osName +
                 "> ,os arch<" + osArch.trim()+ "> ";
@@ -79,7 +86,7 @@ public class SystemInfo {
 
 
     public static void main(String[] args) {
-        SystemInfo systemInfo = new SystemInfo();
+        SystemInfo systemInfo = new SystemInfo((byte)5);
 //        System.out.println(systemInfo);
         byte[] sysInfoBytes = systemInfo.getBytes();
         System.out.println(Arrays.toString(sysInfoBytes));

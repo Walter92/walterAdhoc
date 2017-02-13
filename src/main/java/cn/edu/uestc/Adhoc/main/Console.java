@@ -50,7 +50,7 @@ public class Console {
 
         while (true){
             try {
-                logger.info("select:\n1.send RREQ;\n2.query route table;\n3.send text message;\n0.quit");
+                System.out.println("select:\n1.send RREQ;\n2.query route table;\n3.send text message;\n0.quit");
                 int selected = Integer.parseInt(br.readLine());
                 switch (selected){
                     case 1:sendRREQ();break;
@@ -86,11 +86,13 @@ public class Console {
     private void queryRouteTable(){
         Map<Integer,RouteEntry>  map = adhocNode.getRouteTable();
         Set<Map.Entry<Integer,RouteEntry>>  entrySet = map.entrySet();
-        System.out.println("----------------------------------------------------------");
+        System.out.println("---------------------------------------------------------------------------------------------------------------------------------------------");
         System.out.println("|destIP|seqNum|state|hopCount|nextHopIP|lifeTime|systemInfo\t\t\t\t\t\t\t\t\t\t\t\t  |lastModifyTime");
         for(Map.Entry<Integer,RouteEntry> entryEntry : entrySet){
             System.out.println(entryEntry.getValue().printTable());
         }
+        System.out.println("---------------------------------------------------------------------------------------------------------------------------------------------");
+
     }
 
 

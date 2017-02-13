@@ -143,7 +143,7 @@ public class MessageRREP extends Message {
 
 
     public static void main(String[] args){
-        MessageRREP messageRREP = new MessageRREP(2,3,4,new SystemInfo());
+        MessageRREP messageRREP = new MessageRREP(2,3,4,new SystemInfo((byte)5));
         System.out.println(messageRREP);
         byte[] bytes = messageRREP.getBytes();
         System.out.println(bytes.length+":::"+ Arrays.toString(bytes));

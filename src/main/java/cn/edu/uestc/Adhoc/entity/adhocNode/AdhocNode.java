@@ -61,7 +61,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     private final Queue<Integer>  helloMessagesQueue = new ArrayDeque<Integer> ();
 
     // 节点的处理器个数以及最大内存
-    private SystemInfo systemInfo = new SystemInfo();
+    private SystemInfo systemInfo ;
 
     //获取路由表,测试用
     public Map<Integer, RouteEntry>  getRouteTable() {
@@ -99,6 +99,14 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         this.ip = ip;
         this.portName = portName;
         this.seqNum = 0;
+
+        init();
+        byte performanceLevel = evaluateLevel();
+        this.systemInfo = new SystemInfo(performanceLevel);
+    }
+
+
+    private void init() {
         adhocTransfer =  Serial.getInstance(this.portName);
 
         //节点对串口进行监听
@@ -109,6 +117,37 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         logger.debug("<{}> started reader thread,waiting for data...", MessageUtils.showHex(this.ip));
         logger.debug("<{}> init done!",MessageUtils.showHex(this.ip));
         logger.debug("*************************************");
+    }
+
+    //通过计算发送大量数据所消耗的时间来对该节点的性能进行评级
+    private byte evaluateLevel(){
+        int count=10000;
+        long start = System.currentTimeMillis();
+        Message testMessage = new MessageData(0,"testLevel".getBytes());
+        testMessage.setType(RouteProtocol.TEST);
+        while (count>0){
+            --count;
+            try {
+                adhocTransfer.send(testMessage);
+            } catch (IOException e) {
+                e.printStackTrace();
+                logger.warn("io exception in evaluating level.");
+            }
+        }
+        long costTime = System.currentTimeMillis()-start;
+        System.out.println("costTime = "+costTime);
+        if(costTime<500){
+            return (byte)5;
+        }else if(costTime<1000){
+            return (byte)4;
+        }else if(costTime<1500){
+            return (byte)3;
+        }else if(costTime<2000){
+            return (byte)2;
+        }else {
+            return (byte)1;
+        }
+
     }
 
     //当串口中数据被更新后执行的方法
@@ -225,7 +264,11 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         //如果信息中不是在寻找本机,则给跳数加一和更新转发节点ip后转发该请求
         messageRREQ.setHop((byte) (messageRREQ.getHop() + 1));
         messageRREQ.setRouteIP(this.ip);
-        //转发
+        //如果本节点的性能等级低于路由请求中的节点性能等级，则将路由请求中的短板信息更新为自身
+        if(this.systemInfo.getPerformanceLevel()<messageRREQ.getSystemInfo().getPerformanceLevel()){
+            messageRREQ.setSystemInfo(this.systemInfo);
+        }
+        //转发路由请求
         forwardRREQ(messageRREQ);
 
     }
@@ -296,6 +339,9 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
             messageRREP.setRouteIP(this.ip);
             messageRREP.setNextHopIp(routeEntry.getNextHopIP());
             //转发
+            if(this.systemInfo.getPerformanceLevel()<messageRREP.getSystemInfo().getPerformanceLevel()){
+                messageRREP.setSystemInfo(this.systemInfo);
+            }
             forwardRREP(messageRREP);
         }
     }
@@ -339,6 +385,8 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         } else if(type == RouteProtocol.RRER){
             MessageRRER message = MessageRRER.recoverMsg(bytes);
             receiveRRER(message);
+        }else if (type == RouteProtocol.TEST){
+
         }else {
             logger.warn("Invalid data format!");
         }
@@ -446,6 +494,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     public void helloHandler(Message message) {
         int srcIP = message.getSrcIP();
         //保证线程安全
+        logger.debug("<{}> receive hello from <{}>",MessageUtils.showHex(this.ip),MessageUtils.showHex(srcIP));
         lock.lock();
         try {
             int size = helloMessagesQueue.size();

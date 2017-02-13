@@ -126,7 +126,7 @@ public class MessageRREQ extends Message {
     }
 
     public static void main(String[] args){
-        MessageRREQ messageRREQ = new MessageRREQ(2,3,4,new SystemInfo());
+        MessageRREQ messageRREQ = new MessageRREQ(2,3,4,new SystemInfo((byte)3));
 
         byte[] bytes = messageRREQ.getBytes();
         System.out.println(bytes.length+":::"+ Arrays.toString(bytes));

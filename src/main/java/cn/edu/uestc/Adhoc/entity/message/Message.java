@@ -37,5 +37,4 @@ public abstract class Message {
 
     public abstract byte[] getBytes();
 
-
 }

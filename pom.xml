@@ -84,8 +84,8 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>cn.edu.uestc.Adhoc.main.Main</mainClass>
-                                    <!--<mainClass>cn.edu.uestc.Adhoc.main.Console</mainClass>-->
+                                    <!--<mainClass>cn.edu.uestc.Adhoc.main.Main</mainClass>-->
+                                    <mainClass>cn.edu.uestc.Adhoc.main.Console</mainClass>
                                 </transformer>
                             </transformers>
                             <finalName>${project.name}</finalName>

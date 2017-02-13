@@ -12,4 +12,5 @@ public interface RouteProtocol {
     public static final int DATA = 0x20;
     public static final int RRER = 0x40;
     public static final int HELLO = 0x50;
+    public static final int TEST = 0x60;
 }

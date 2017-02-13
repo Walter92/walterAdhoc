@@ -68,13 +68,16 @@ public class Main {
                 System.exit(-1);
             }
         }
-        JLabel ipLable = new JLabel("IP:0x"+ AdhocIp);
+        SystemInfo systemInfo = adhocNode.getSystemInfo();
+        JLabel ipLabel = new JLabel("IP:0x"+ AdhocIp.toUpperCase());
+        JLabel levelLabel = new JLabel("\tlevel:"+ systemInfo.getPerformanceLevel());
         JLabel portName = new JLabel("\tPortName:"+AdhocPortName);
-        SystemInfo systemInfo = new SystemInfo();
+
         JLabel sysInfo = new JLabel("\tPlatform Arch:"+ systemInfo.getOsName()+"-"+systemInfo.getOsArch());
         JPanel adhocInfo = new JPanel();
-        adhocInfo.add(ipLable);
+        adhocInfo.add(ipLabel);
         adhocInfo.add(portName);
+        adhocInfo.add(levelLabel);
         adhocInfo.add(sysInfo);
 
         JLabel destIPLable = new JLabel("Destinations IP:");
