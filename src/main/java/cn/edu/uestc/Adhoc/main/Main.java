@@ -3,6 +3,7 @@ package cn.edu.uestc.Adhoc.main;
 import cn.edu.uestc.Adhoc.entity.adhocNode.AdhocNode;
 import cn.edu.uestc.Adhoc.entity.factory.AdhocNodeFactory;
 import cn.edu.uestc.Adhoc.entity.route.RouteEntry;
+import cn.edu.uestc.Adhoc.entity.route.StateFlags;
 import cn.edu.uestc.Adhoc.entity.systemInfo.SystemInfo;
 import cn.edu.uestc.Adhoc.utils.MessageUtils;
 
@@ -142,12 +143,43 @@ public class Main {
     }
 
     private void display(Map<Integer,RouteEntry>  routeTable){
+
+//            SystemInfo systemInfoD5 = new SystemInfo(2,3862,(byte)3);
+//            systemInfoD5.setOsArch("x86");
+//            systemInfoD5.setOsName("Windows 7");
+//            RouteEntry routeEntryE3 = new RouteEntry(227,213,3, StateFlags.VALID,2,60000,systemInfoD5,System.currentTimeMillis());
+//
+//            SystemInfo systemInfoA2 = new SystemInfo(1,5096,(byte)2);
+//            systemInfoA2.setOsArch("arm");
+//            systemInfoA2.setOsName("Linux");
+//            RouteEntry routeEntryA2 = new RouteEntry(162,162,1, StateFlags.VALID,1,60000,systemInfoA2,System.currentTimeMillis());
+//
+//
+//
+//
+//            routeTable.put(227,routeEntryE3);
+//            routeTable.put(162,routeEntryA2);
+
+
+
+        SystemInfo systemInfoA2 = new SystemInfo(1,5096,(byte)2);
+        systemInfoA2.setOsArch("arm");
+        systemInfoA2.setOsName("Linux");
+        RouteEntry routeEntryA2 = new RouteEntry(162,213,1, StateFlags.VALID,3,60000,systemInfoA2,System.currentTimeMillis());
+
+
+
+
+        routeTable.put(162,routeEntryA2);
+
         JFrame routingTable = new JFrame("Route Table");
         String[] columnTitle={"destIP","nextIP","seqNum","hopCount","SysInfo","lifeTime","lastModifyTime","status"};
         int rows = routeTable.size();
         Object[][] cells = new Object[rows][columnTitle.length];
         Set<Integer>  keys =  routeTable.keySet();
         int i=0;
+
+
         for(Integer integer:keys){
             RouteEntry entry = routeTable.get(integer);
             cells[i][0]=MessageUtils.showHex(entry.getDestIP());

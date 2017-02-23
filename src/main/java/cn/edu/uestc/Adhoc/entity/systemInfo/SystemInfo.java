@@ -84,6 +84,29 @@ public class SystemInfo {
                 "> ,os arch<" + osArch.trim()+ "> ";
     }
 
+    public void setProcessorCount(int processorCount) {
+        this.processorCount = processorCount;
+    }
+
+    public void setMemorySize(int memorySize) {
+        this.memorySize = memorySize;
+    }
+
+    public void setOsName(String osName) {
+        this.osName = osName;
+    }
+
+    public void setOsArch(String osArch) {
+        this.osArch = osArch;
+    }
+
+    public void setSysInfoByte(byte[] sysInfoByte) {
+        this.sysInfoByte = sysInfoByte;
+    }
+
+    public void setPerformanceLevel(byte performanceLevel) {
+        this.performanceLevel = performanceLevel;
+    }
 
     public static void main(String[] args) {
         SystemInfo systemInfo = new SystemInfo((byte)5);

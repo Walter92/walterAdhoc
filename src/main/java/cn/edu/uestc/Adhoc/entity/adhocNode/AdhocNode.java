@@ -154,7 +154,10 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     //adhocTransfer中message属性被更新后执行
     @Override
     public void doSerialPortEvent(SerialPortEvent serialPortEvent) {
-        this.dataParsing(adhocTransfer.getMessage());
+
+        byte[] bytes = adhocTransfer.getMessage();
+        //logger.debug("parsing data..."+Arrays.toString(bytes));
+        this.dataParsing(bytes);
     }
 
     //发起对某节点的路由请求
@@ -362,6 +365,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     @Override
     public void dataParsing(byte[] bytes) {
         byte type = bytes[3];
+        //logger.debug("the type of message is {}",type);
         //Message message = null;
         //如果是数据类型则恢复为数据MessageData,并且交给数据类型接收方法
         if (type == RouteProtocol.DATA) {

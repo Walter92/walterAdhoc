@@ -20,7 +20,7 @@ public class SerialReadThread implements Runnable, SerialPortEventListener {
     private InputStream is;
     private BufferedInputStream bis;
     private Thread readThread;
-
+    long start = 0L;//计算传输速度，开始时间
     public SerialReadThread(Serial serial) {
         this.serial = serial;
         this.is = serial.getIs();
@@ -74,6 +74,7 @@ public class SerialReadThread implements Runnable, SerialPortEventListener {
                 int lengthOfBuff = 0;
                 try {
                     int numBytes = -1;
+
                     while ((numBytes = is.available()) >  0) {
                         is.read(buf, 0, numBytes);
                         bytes = Arrays.copyOfRange(buf, 0, numBytes);
@@ -91,18 +92,27 @@ public class SerialReadThread implements Runnable, SerialPortEventListener {
                         buff = Arrays.copyOf(buff, bytes.length + lengthOfBuff);
                         //将数组合并,把bytes的内容追加到buff
                         System.arraycopy(bytes, 0, buff, lengthOfBuff, bytes.length);
-
+                        if(lengthOfBuff==0&&buff.length!=0){
+                            start=System.currentTimeMillis();
+                        }
                        // logger.debug("收到数据:" + Arrays.toString(bytes));
-                        System.out.println("Buff::::" + Arrays.toString(buff));
+                       // System.out.println("Buff::::" + Arrays.toString(buff));
                         if (buff[0] == RouteProtocol.frameHeader[0] && buff[1] == RouteProtocol.frameHeader[1]) {
                           // logger.debug("帧头校验成功!");
                             lengthOfBuff = buff.length;
                             if (buff[lengthOfBuff - 1] == RouteProtocol.frameEnd[1]
                                     && buff[lengthOfBuff - 2] == RouteProtocol.frameEnd[0]) {
-//                                System.out.println("帧尾校验成功!");
+                                //System.out.println("帧尾校验成功!");
 //                                System.out.println("完整数据:" + new String(buff) + "::" + lengthOfBuff);
 
                                 serial.setMessage(buff);
+                                long end = System.currentTimeMillis();
+                                double costTime = end-start;
+                                if(!Double.isInfinite(costTime)) {
+                                   // logger.debug("receive data {} byte, cost time {} milliseconds, speed is {} byte/s", buff.length, costTime, buff.length*1000 / costTime);
+                                }else {
+                                    //logger.debug("too shortly to ...");
+                                }
                                 buff = new byte[0];
                             }
                         }

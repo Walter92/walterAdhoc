@@ -111,8 +111,9 @@ public class Serial implements AdhocTransfer {
         else if (!this.message.equals(message))
             bool = true;
         this.message = message;
-        if (bool)
+        if (bool) {
             notifyAdhocNode(new SerialPortEvent(this));
+        }
     }
 
     // 节点初始化

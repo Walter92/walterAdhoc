@@ -74,7 +74,7 @@ public class MessageRREQ extends Message {
         messageByte[0] = RouteProtocol.frameHeader[0];
         messageByte[1] = RouteProtocol.frameHeader[1];//帧头,0,1
         messageByte[2] = DEFAULT_BYTE;
-        messageByte[3] = RouteProtocol.RREQ;//数据类型,3
+        messageByte[3] = (byte)this.type;//数据类型,3
 
         messageByte[4] = srcByte[0];
         messageByte[5] = srcByte[1];//源节点,4,5

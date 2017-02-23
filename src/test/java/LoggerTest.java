@@ -4,6 +4,7 @@ import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by walter on 16-11-2.
@@ -18,10 +19,15 @@ public class LoggerTest {
 //        Date date = new Date();
 //        SimpleDateFormat
 //        System.out.println(date);
-        long time = System.currentTimeMillis();
-        Date date = new Date(time);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        System.out.println(simpleDateFormat.format(date));
+//        long time = System.currentTimeMillis();
+//        Date date = new Date(time);
+//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        System.out.println(simpleDateFormat.format(date));
+//        try {
+//            TimeUnit.SECONDS.sleep(1);
+//        }catch (InterruptedException e){}
+//        System.out.println(System.currentTimeMillis()-time);
+        Integer.parseInt("16",16);
     }
 
 
