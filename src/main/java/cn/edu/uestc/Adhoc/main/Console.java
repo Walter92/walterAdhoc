@@ -95,12 +95,12 @@ public class Console {
     }
     private void queryRouteTable() throws Exception{
         Map<Integer,RouteEntry>  map = adhocNode.getRouteTable();
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        SystemInfo systemInfoA1 = new SystemInfo(1,5093,(byte)2);
-            systemInfoA1.setOsArch("arm");
-            systemInfoA1.setOsName("Linux");
-            RouteEntry routeEntryE3 = new RouteEntry(227,213,3, StateFlags.VALID,3,60000,systemInfoA1,sdf.parse("2017-02-22 17:51:01").getTime());
+//
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        SystemInfo systemInfoA1 = new SystemInfo(1,5093,(byte)2);
+//            systemInfoA1.setOsArch("arm");
+//            systemInfoA1.setOsName("Linux");
+//            RouteEntry routeEntryE3 = new RouteEntry(227,213,3, StateFlags.VALID,3,60000,systemInfoA1,sdf.parse("2017-02-22 17:51:01").getTime());
 
 //            SystemInfo systemInfoA2 = new SystemInfo(1,5096,(byte)2);
 //            systemInfoA2.setOsArch("arm");
@@ -110,17 +110,17 @@ public class Console {
 
 
 
-        map.put(227,routeEntryE3);
-       // map.put(162,routeEntryA2);
-
+//        map.put(227,routeEntryE3);
+//       // map.put(162,routeEntryA2);
+//
 
         Set<Map.Entry<Integer,RouteEntry>>  entrySet = map.entrySet();
-        System.out.println("---------------------------------------------------------------------------------------------------------------------------------------------");
-        System.out.println("|destIP|seqNum|state|hopCount|nextHopIP|lifeTime|systemInfo\t\t\t\t\t\t\t\t\t\t\t\t  |lastModifyTime");
+        logger.debug("---------------------------------------------------------------------------------------------------------------------------------------------");
+        logger.debug("|destIP|seqNum|state  |hopCount|nextHopIP|lifeTime    |systemInfo\t\t\t\t\t\t\t\t\t\t\t\t  |lastModifyTime");
         for(Map.Entry<Integer,RouteEntry> entryEntry : entrySet){
-            System.out.println(entryEntry.getValue().printTable());
+            logger.debug(entryEntry.getValue().printTable());
         }
-        System.out.println("---------------------------------------------------------------------------------------------------------------------------------------------");
+        logger.debug("---------------------------------------------------------------------------------------------------------------------------------------------");
 
     }
 

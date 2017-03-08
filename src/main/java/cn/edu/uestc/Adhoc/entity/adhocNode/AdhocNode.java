@@ -14,9 +14,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.sql.Time;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -41,7 +43,8 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     private AdhocTransfer adhocTransfer;
 
     //路由维护，维护hello报文队列
-    private ReentrantLock lock = new ReentrantLock(true);
+    private ReentrantLock lock = new ReentrantLock(false);
+    Condition condition = lock.newCondition();
     // 节点IP地址
     private final int ip;
 
@@ -58,11 +61,13 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     private HashSet<Integer>  precursorIPs = new HashSet<Integer> ();
 
     //接收到的hello报文的发送者队列,当收到某hello报文时将其加入到队列中,路由维护线程从对列中取出数据,用于更新路由表项的生存时间
-    private final Queue<Integer>  helloMessagesQueue = new ArrayDeque<Integer> ();
+    private final Queue<Integer>  helloMessagesQueue = new LinkedList<Integer> ();
 
     // 节点的处理器个数以及最大内存
     private SystemInfo systemInfo ;
 
+    // 心跳hello
+    private MessageHello messageHello;
     //获取路由表,测试用
     public Map<Integer, RouteEntry>  getRouteTable() {
         return this.routeTable;
@@ -100,9 +105,16 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         this.portName = portName;
         this.seqNum = 0;
 
+        //初始化串口
         init();
-        byte performanceLevel = evaluateLevel();
+        byte performanceLevel = (byte)3;//evaluateLevel();
         this.systemInfo = new SystemInfo(performanceLevel);
+        messageHello = new MessageHello(this.ip);
+        //开启心跳
+        sendHello(messageHello);
+        //维护路由表
+        maintainRouteTable();
+        checkRouteTable();
     }
 
 
@@ -372,19 +384,18 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
             MessageData message = MessageData.recoverMsg(bytes);
             //  System.out.println(message);
             receiveDATA(message);
-        }
-        //如果是路由回复类型则恢复为数据MessageRREP,并且交给数据类型接收方法
-        else if (type == RouteProtocol.RREP) {
+        } else if (type == RouteProtocol.RREP) {
+            //如果是路由回复类型则恢复为数据MessageRREP,并且交给数据类型接收方法
             MessageRREP message = MessageRREP.recoverMsg(bytes);
             receiveRREP(message);
-        }
-        //如果是路由请求类型则恢复为数据MessageRREQ,并且交给数据类型接收方法
-        else if (type == RouteProtocol.RREQ) {
+        } else if (type == RouteProtocol.RREQ) {
+            //如果是路由请求类型则恢复为数据MessageRREQ,并且交给数据类型接收方法
             MessageRREQ message = MessageRREQ.recoverMsg(bytes);
             receiveRREQ(message);
         } else if (type == RouteProtocol.HELLO) {
             //交给处理hello报文的处理函数
             MessageHello message = MessageHello.recoverMsg(bytes);
+         //   logger.debug("get hello from {}",message.getSrcIP());
             helloHandler(message);
         } else if(type == RouteProtocol.RRER){
             MessageRRER message = MessageRRER.recoverMsg(bytes);
@@ -469,7 +480,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
 
     @Override
     public void sendRRER(MessageRRER messageRRER) {
-        logger.debug("<{}> prepare to send RRER, cant link to <{}>.",this.getIp(),messageRRER.getDestinationIP());
+        logger.debug("<{}> prepare to send RRER, cant link to <{}>.",MessageUtils.showHex(this.ip),MessageUtils.showHex(messageRRER.getDestinationIP()));
         try {
             adhocTransfer.send(messageRRER);
             logger.debug("<{}> send RRER successfully!", MessageUtils.showHex(this.ip));
@@ -480,11 +491,14 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
 
     @Override
     public void receiveRRER(MessageRRER messageRRER) {
-        logger.debug("<{}> receive RRER from <{}>",this.ip,messageRRER.getSrcIP());
+        //logger.debug("<{}> receive RRER from <{}>",this.ip,messageRRER.getSrcIP());
+        //根据目标ip获取路由，如果路由为有效状态则将其变更为无效，然后发送路由错误，否则不再处理
         RouteEntry routeEntry = routeTable.get(messageRRER.getDestinationIP());
-        routeEntry.setState(StateFlags.INVALID);
-        MessageRRER message = new MessageRRER(this.getIp(),messageRRER.getDestinationIP());
-        sendRRER(message);
+        if(routeEntry.getState()==StateFlags.VALID) {
+            routeEntry.setState(StateFlags.INVALID);
+            MessageRRER message = new MessageRRER(this.getIp(), messageRRER.getDestinationIP());
+            sendRRER(message);
+        }
     }
 
     public RouteEntry queryRouteTable(int destinationIP) {
@@ -498,17 +512,40 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     public void helloHandler(Message message) {
         int srcIP = message.getSrcIP();
         //保证线程安全
-        logger.debug("<{}> receive hello from <{}>",MessageUtils.showHex(this.ip),MessageUtils.showHex(srcIP));
+       // logger.debug("<{}> receive hello from <{}>",MessageUtils.showHex(this.ip),MessageUtils.showHex(srcIP));
         lock.lock();
         try {
             int size = helloMessagesQueue.size();
             helloMessagesQueue.add(srcIP);
+            //if(size==0){
+                condition.signalAll();
+         //   }
         }finally {
             lock.unlock();
         }
 
     }
 
+    private void sendHello(final MessageHello messageHello){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        //logger.debug("peng peng");
+                        adhocTransfer.send(messageHello);
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (IOException e) {
+                        logger.warn("<{}> send Hello failed!", MessageUtils.showHex(messageHello.getSrcIP()));
+                    }catch (InterruptedException e){
+                        logger.warn("hello thread interrupted exception, exception {}",e.getMessage());
+
+                    }
+                }
+            }
+        }).start();
+
+    }
 
     //路由表维护函数,根据helloIP队列中的IP来维护路由表,在一定时间内没有收到某一节节点的hello报文,则将以该节点为下一中转节点的路由表
     //可用状态设置为不可用,并发送RRER
@@ -519,47 +556,60 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
             //路由维护线程
             @Override
             public void run() {
-                int ip1 = 0;
+                Integer ip1 = null;
                 //根据目标地址获取
                 Set<Integer>  DestinationSet;
                 Iterator<Integer>  it;
-                boolean locked = false;
+            //    boolean locked = false;
                 while (true) {
+                    lock.lock();
                     try {
-                        locked = lock.tryLock(1, TimeUnit.SECONDS);
-                        if(locked) {
-                            if (helloMessagesQueue.size() > 0) {
-                                ip1 = helloMessagesQueue.remove();
+                            while (helloMessagesQueue.size() == 0) {
+                                condition.await();
                             }
-                        }
+                        ip1 = helloMessagesQueue.remove();
                     }catch (InterruptedException e){
 
                     }finally {
-                        if(locked)
-                            lock.unlock();
+                        lock.unlock();
                     }
-                    if (ip1 != 0) {
+
+                    if (ip1 != null) {
                         DestinationSet = getDestinationIPByNextIP(ip1);
                         it = DestinationSet.iterator();
                         while (it.hasNext()) {
                             routeTable.get(it.next()).setLastModifyTime(System.currentTimeMillis());
                         }
                     }
-                    for(Integer integer : routeTable.keySet()){
+
+                }
+            }
+        });
+        //将维护线程设置为守护线程
+       // maintainRouteThread.setDaemon(true);
+        maintainRouteThread.start();
+
+    }
+
+
+    private void checkRouteTable() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try{
+                        TimeUnit.SECONDS.sleep(2);
+                    }catch (InterruptedException e){}
+                    for (Integer integer : routeTable.keySet()) {
                         RouteEntry routeEntry = routeTable.get(integer);
-                        if((System.currentTimeMillis()-routeEntry.getLastModifyTime())>routeEntry.getLifeTime()){
+                        if (StateFlags.VALID.equals(routeEntry.getState()) && (System.currentTimeMillis() - routeEntry.getLastModifyTime()) > routeEntry.getLifeTime()) {
                             routeEntry.setState(StateFlags.INVALID);
-                            sendRRER(new MessageRRER(getIp(),routeEntry.getDestIP()));
+                            sendRRER(new MessageRRER(getIp(), routeEntry.getDestIP()));
                         }
                     }
                 }
             }
-        });
-
-        //将维护线程设置为守护线程
-       // maintainRouteThread.setDaemon(true);
-
-        maintainRouteThread.start();
+        }).start();
 
     }
 

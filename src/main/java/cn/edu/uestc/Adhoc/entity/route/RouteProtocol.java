@@ -10,7 +10,7 @@ public interface RouteProtocol {
     public static final int RREQ = 0x01;
     public static final int RREP = 0x10;
     public static final int DATA = 0x20;
-    public static final int RRER = 0x40;
-    public static final int HELLO = 0x50;
-    public static final int TEST = 0x60;
+    public static final int RRER = 0x07;
+    public static final int HELLO = 0x03;
+    public static final int TEST = 0x09;
 }

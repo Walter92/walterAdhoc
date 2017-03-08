@@ -48,7 +48,7 @@ public class RouteEntry {
         return lastModifyTime;
     }
 
-    public void setLastModifyTime(long lastModifyTime) {
+    public synchronized void  setLastModifyTime(long lastModifyTime) {
         this.lastModifyTime = lastModifyTime;
     }
 
@@ -90,7 +90,7 @@ public class RouteEntry {
         return state;
     }
 
-    public void setState(StateFlags state) {
+    public synchronized void setState(StateFlags state) {
         this.state = state;
     }
 
@@ -152,7 +152,7 @@ public class RouteEntry {
         return "|"+MessageUtils.showHex(destIP)+"  |"+seqNum+"     |"+state+"|"+hopCount+"       |"+MessageUtils.showHex(nextHopIP)+"     |"+lifeTime+"       |"+systemInfo+"|"+ new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(lastModifyTime))+"|";
     }
     //根据生存时间，表项失效设置
-    public void setInvalid() {
+    public  void setInvalid() {
         while (true) {
             try {
 

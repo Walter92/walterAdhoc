@@ -5,23 +5,31 @@ import java.util.Map;
 
 public enum StateFlags {
     // The entry is believed Viable.
-    VALID,
+    VALID(0),
     // The entry is known to be flawed but has not been removed yet.
-    INVALID,
+    INVALID(1),
     // The entry is broken but a repair operation is possible.
-    REPAIRABLE,
+    REPAIRABLE(2),
     // The entry is broken but the repair procedure is underway.
-    REPAIRING,
+    REPAIRING(5),
 
-    EXPIRED,
+    EXPIRED(3),
 
-    RREQSENT;
+    RREQSENT(4);
     static Map<StateFlags,String>  map = new HashMap<StateFlags, String> ();
     static {
         map.put(VALID,"valid");
         map.put(INVALID,"invalid");
         map.put(REPAIRABLE,"可恢复");
         map.put(EXPIRED,"过期");
+    }
+    private int value;
+    private StateFlags(int value){
+        this.value=value;
+    }
+
+    public boolean equals(StateFlags stateFlags){
+        return this.value==stateFlags.value;
     }
     public String getShow(){
         return map.get(this);

@@ -108,11 +108,11 @@ public class SerialReadThread implements Runnable, SerialPortEventListener {
                                 serial.setMessage(buff);
                                 long end = System.currentTimeMillis();
                                 double costTime = end-start;
-                                if(!Double.isInfinite(costTime)) {
-                                   // logger.debug("receive data {} byte, cost time {} milliseconds, speed is {} byte/s", buff.length, costTime, buff.length*1000 / costTime);
-                                }else {
-                                    //logger.debug("too shortly to ...");
-                                }
+//                                if(!Double.isInfinite(costTime)) {
+//                                   // logger.debug("receive data {} byte, cost time {} milliseconds, speed is {} byte/s", buff.length, costTime, buff.length*1000 / costTime);
+//                                }else {
+//                                    //logger.debug("too shortly to ...");
+//                                }
                                 buff = new byte[0];
                             }
                         }

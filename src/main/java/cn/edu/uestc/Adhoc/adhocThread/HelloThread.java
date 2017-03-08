@@ -27,7 +27,7 @@ public class HelloThread implements Runnable {
         while (true) {
             for (Integer integer : adhocNode.getPrecursorIPs()) {
                 try {
-                    os.write(new MessageHello(adhocNode.getIp(), integer).getBytes());
+                    os.write(new MessageHello(adhocNode.getIp()).getBytes());
                     os.flush();
                 } catch (IOException e) {
                     e.printStackTrace();
