@@ -1,6 +1,7 @@
 package cn.edu.uestc.Adhoc.entity.serial;
 
 import cn.edu.uestc.Adhoc.entity.message.Message;
+import cn.edu.uestc.Adhoc.entity.route.RouteEntry;
 import cn.edu.uestc.Adhoc.entity.transfer.AdhocTransfer;
 import cn.edu.uestc.Adhoc.adhocThread.SerialReadThread;
 import cn.edu.uestc.Adhoc.adhocThread.SerialWriteThread;
@@ -176,6 +177,18 @@ public class Serial implements AdhocTransfer {
             throw ioe;
         }
 
+    }
+
+    @Override
+    public void send(int level, Message message) throws IOException {
+        try {
+            Runnable writer = new SerialWriteThread(level,this, message);
+            executorService.submit(writer);
+
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            throw ioe;
+        }
     }
 
 

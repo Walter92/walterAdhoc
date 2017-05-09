@@ -1,6 +1,7 @@
 package cn.edu.uestc.Adhoc.entity.transfer;
 
 import cn.edu.uestc.Adhoc.entity.message.Message;
+import cn.edu.uestc.Adhoc.entity.route.RouteEntry;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +17,7 @@ public interface AdhocTransfer {
 
     //发送一种数据类型的信息
     void send(Message message) throws IOException;
+    void send(int level ,Message message) throws IOException;
 
     //添加信息监听器
     void addReceiveListener(EventListener listener);

@@ -161,16 +161,16 @@ public class Main {
 //            routeTable.put(162,routeEntryA2);
 
 
-
-        SystemInfo systemInfoA2 = new SystemInfo(1,5096,(byte)2);
-        systemInfoA2.setOsArch("arm");
-        systemInfoA2.setOsName("Linux");
-        RouteEntry routeEntryA2 = new RouteEntry(162,213,1, StateFlags.VALID,3,60000,systemInfoA2,System.currentTimeMillis());
-
-
-
-
-        routeTable.put(162,routeEntryA2);
+//
+//        SystemInfo systemInfoA2 = new SystemInfo(1,5096,(byte)2);
+//        systemInfoA2.setOsArch("arm");
+//        systemInfoA2.setOsName("Linux");
+//        RouteEntry routeEntryA2 = new RouteEntry(162,213,1, StateFlags.VALID,3,60000,systemInfoA2,System.currentTimeMillis());
+//
+//
+//
+//
+//        routeTable.put(162,routeEntryA2);
 
         JFrame routingTable = new JFrame("Route Table");
         String[] columnTitle={"destIP","nextIP","seqNum","hopCount","SysInfo","lifeTime","lastModifyTime","status"};

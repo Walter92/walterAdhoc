@@ -10,9 +10,7 @@ import org.apache.logging.log4j.core.appender.routing.Route;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -55,7 +53,7 @@ public class Console {
             try {
                 System.out.println("select:\n1.send RREQ;\n2.query route table;" +
                         "\n3.send text message;" +"\n4.clean route table;" +
-                        "\n5.send big data;\n0.quit");
+                        "\n5.send big data;\n6.sendFile\n0.quit");
                 int selected = Integer.parseInt(br.readLine());
                 switch (selected){
                     case 1:sendRREQ();break;
@@ -63,6 +61,7 @@ public class Console {
                     case 3:sendTextMessage();break;
                     case 4:cleanRouteTable();break;
                     case 5:sendBigData();break;
+                    case 6:sendFile();break;
                     case 0:System.exit(0);
                     default:logger.warn("select from 0,1,2,3!!");
                 }
@@ -74,6 +73,40 @@ public class Console {
         }
 
     }
+
+
+    private void sendFile() throws IOException{
+        long start = System.currentTimeMillis();
+        File file = new File("/home/walter/IdeaProjects/WalterAdhoc/src/main/java/cn/edu/uestc/Adhoc/main/Console.java");
+        BufferedReader br1 = new BufferedReader(new FileReader(file));
+        int destIP = 0 ;
+        String message=null;
+        int level=0;
+        while (true) {
+            try {
+                logger.info("please input destination node IP:");
+                destIP = Integer.valueOf(br.readLine(),16);
+                logger.info("please input level");
+                level = Integer.valueOf(br.readLine());
+                logger.info("please input message what you want to send:");
+                while ((message=br1.readLine())!=null) {
+                   // message = br1.readLine();
+                    adhocNode.sendMessage(level,message, destIP);
+                }
+                break;
+            } catch (IOException e) {
+                e.printStackTrace();
+                logger.warn("please input a number!");
+            }
+        }
+        long cost = System.currentTimeMillis()-start;
+        if(file.exists()&&file.isFile()) {
+            long fileLength = file.length();
+            System.out.println("cost:"+cost+"fileLength:"+fileLength+"speed:"+fileLength/cost);
+        }
+
+    }
+
 
     private void sendRREQ(){
         int destIP = 0 ;

@@ -31,7 +31,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 想要设置路由表项的有效时间,可以在新建该表项时增加一个时间戳,当访问该表项时带着时间戳去访问,如果当前时间大于了表项的时间戳
  * n（设置的失效时间）则该表项被判定为无效,应该从路由表中删除。
  */
-public class AdhocNode implements IAdhocNode, SerialPortListener {
+public class AdhocNode extends AbstractAdhocNode implements  SerialPortListener {
     private static final Logger logger = LoggerFactory.getLogger(AdhocNode.class);
     //轮训次数
     private final static int POLLING_COUNT = 5;
@@ -45,29 +45,26 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     //路由维护，维护hello报文队列
     private ReentrantLock lock = new ReentrantLock(false);
     Condition condition = lock.newCondition();
-    // 节点IP地址
-    private final int ip;
 
-    //和开启的串口端口名字
-    private String portName;
 
     //节点发出的序列号,该节点每发送出一次RREQ或者RREP时都会在该寻列号上加一,用以标识这是否是一次新的路由请求或者路由回复
     private byte seqNum;
 
     //节点的路由表,使用同步的路由表
-    private Map<Integer, RouteEntry>  routeTable = new ConcurrentHashMap<Integer, RouteEntry> ();
+    private Map<Integer, RouteEntry> routeTable = new ConcurrentHashMap<Integer, RouteEntry>();
 
     //先驱列表,存储了本节点周围的节点地址,其存在的目的主要用于路由维护
-    private HashSet<Integer>  precursorIPs = new HashSet<Integer> ();
+    private HashSet<Integer> precursorIPs = new HashSet<Integer> ();
 
     //接收到的hello报文的发送者队列,当收到某hello报文时将其加入到队列中,路由维护线程从对列中取出数据,用于更新路由表项的生存时间
-    private final Queue<Integer>  helloMessagesQueue = new LinkedList<Integer> ();
+    private final Queue<Integer> helloMessagesQueue = new LinkedList<Integer>();
 
     // 节点的处理器个数以及最大内存
     private SystemInfo systemInfo ;
 
     // 心跳hello
     private MessageHello messageHello;
+    //发送hello报文
     //获取路由表,测试用
     public Map<Integer, RouteEntry>  getRouteTable() {
         return this.routeTable;
@@ -75,7 +72,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
 
     // 获取节点IP
     public int getIp() {
-        return ip;
+        return this.ip;
     }
 
     //设置节点ip
@@ -100,9 +97,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
 
     // 通过串口名字构造一个结点
     public AdhocNode(String portName, int ip) {
-        // 设置通信的串口
-        this.ip = ip;
-        this.portName = portName;
+        super(portName,ip);
         this.seqNum = 0;
 
         //初始化串口
@@ -423,7 +418,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
             messageData.setNextIP(routeEntry.getNextHopIP());
             try {
                 logger.debug("<{}> send message to <{}>,message : <{}>",MessageUtils.showHex(this.ip),MessageUtils.showHex(destinationIP),messageData);
-                adhocTransfer.send(messageData);
+                adhocTransfer.send(routeEntry.getSystemInfo().getPerformanceLevel(),messageData);
                 logger.debug("<{}> sent datagram to <{}> successfully!", MessageUtils.showHex(this.ip), MessageUtils.showHex(destinationIP));
             } catch (IOException e) {
                 logger.warn("<{}> sent datagram to <{}> failed!", MessageUtils.showHex(this.ip), MessageUtils.showHex(destinationIP));
@@ -431,6 +426,25 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
         }else {
             logger.warn("<{}> search for route to <{}> failed, canceling send message. ",MessageUtils.showHex(ip),MessageUtils.showHex(destinationIP));
         }
+    }
+
+
+
+
+    public void sendMessage(int level,String context, int destinationIP) {
+        //节点想要给目的节点发送消息,首先查询本节点中路由表是否有可用的有效路由,如果没有就发起路由请求
+
+            //如果路由表中有可用路由则可以向其发送数据
+            MessageData messageData = new MessageData(destinationIP, context.getBytes());
+            messageData.setSrcIP(ip);
+            try {
+                logger.debug("<{}> send message to <{}>,message : <{}>",MessageUtils.showHex(this.ip),MessageUtils.showHex(destinationIP),messageData);
+                adhocTransfer.send(level,messageData);
+                logger.debug("<{}> sent datagram to <{}> successfully!", MessageUtils.showHex(this.ip), MessageUtils.showHex(destinationIP));
+            } catch (IOException e) {
+                logger.warn("<{}> sent datagram to <{}> failed!", MessageUtils.showHex(this.ip), MessageUtils.showHex(destinationIP));
+            }
+
     }
 
     @Override
@@ -526,7 +540,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
 
     }
 
-    private void sendHello(final MessageHello messageHello){
+    protected void sendHello(final MessageHello messageHello){
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -549,7 +563,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
 
     //路由表维护函数,根据helloIP队列中的IP来维护路由表,在一定时间内没有收到某一节节点的hello报文,则将以该节点为下一中转节点的路由表
     //可用状态设置为不可用,并发送RRER
-    private void maintainRouteTable() {
+    protected void maintainRouteTable() {
 
         //路由表维护线程,匿名内部类
         Thread maintainRouteThread = new Thread(new Runnable() {
@@ -592,7 +606,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     }
 
 
-    private void checkRouteTable() {
+    protected void checkRouteTable() {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -603,7 +617,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
                     for (Integer integer : routeTable.keySet()) {
                         RouteEntry routeEntry = routeTable.get(integer);
                         if (StateFlags.VALID.equals(routeEntry.getState()) && (System.currentTimeMillis() - routeEntry.getLastModifyTime()) > routeEntry.getLifeTime()) {
-                            routeEntry.setState(StateFlags.INVALID);
+                            routeEntry.setState(StateFlags.EXPIRED);//设置为过期
                             sendRRER(new MessageRRER(getIp(), routeEntry.getDestIP()));
                         }
                     }
@@ -614,7 +628,7 @@ public class AdhocNode implements IAdhocNode, SerialPortListener {
     }
 
     //根据下一跳节点的ip获取目的节点的ip集合,根据该set查找route有效可用的表项
-    private Set<Integer>  getDestinationIPByNextIP(int ip) {
+    protected Set<Integer>  getDestinationIPByNextIP(int ip) {
         Set<Integer>  sets = new HashSet<Integer> ();
         Iterator<Integer>  it = routeTable.keySet().iterator();
         RouteEntry routeEntry = null;

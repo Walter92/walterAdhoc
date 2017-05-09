@@ -18,8 +18,8 @@ public enum StateFlags {
     RREQSENT(4);
     static Map<StateFlags,String>  map = new HashMap<StateFlags, String> ();
     static {
-        map.put(VALID,"valid");
-        map.put(INVALID,"invalid");
+        map.put(VALID,"有效");
+        map.put(INVALID,"失效");
         map.put(REPAIRABLE,"可恢复");
         map.put(EXPIRED,"过期");
     }

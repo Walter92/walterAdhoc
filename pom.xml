@@ -88,7 +88,7 @@
                                     <mainClass>cn.edu.uestc.Adhoc.main.Console</mainClass>
                                 </transformer>
                             </transformers>
-                            <finalName>${project.name}</finalName>
+                            <finalName>${project.name}_console</finalName>
                         </configuration>
                     </execution>
                 </executions>
